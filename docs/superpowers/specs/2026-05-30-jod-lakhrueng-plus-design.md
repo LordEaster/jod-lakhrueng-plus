@@ -15,7 +15,7 @@ Users record purchases; the app calculates how much the government subsidises vs
 
 **Target users:** Elderly Thai users, general public, family members who set up the app for elderly relatives.
 
-**Context:** จดละครึ่ง พลัส เป็นเครื่องมือช่วยจดส่วนตัว สำหรับผู้ใช้สิทธิ **โครงการคนละครึ่ง พลัส** โดยเฉพาะ พัฒนาขึ้นเพื่อความสนุกและเพื่อแก้ปัญหาที่พบในชีวิตจริง ไม่ใช่เว็บไซต์ทางการของหน่วยงานรัฐหรือของโครงการแต่อย่างใด
+**Context:** จดละครึ่ง พลัส เป็นเครื่องมือช่วยจดส่วนตัว สำหรับผู้ใช้สิทธิ **โครงการไทยช่วยไทย พลัส (60/40)** โดยเฉพาะ พัฒนาขึ้นเพื่อความสนุกและเพื่อแก้ปัญหาที่พบในชีวิตจริง ไม่ใช่เว็บไซต์ทางการของหน่วยงานรัฐหรือของโครงการแต่อย่างใด
 
 **Privacy stance:** แอปนี้ไม่มีการเก็บ ส่ง หรือแบ่งปันข้อมูลผู้ใช้ใดๆ ทั้งสิ้น ทุกรายการซื้อและการตั้งค่าถูกเก็บไว้ในเครื่องของผู้ใช้เท่านั้น ไม่มี backend ไม่มี analytics ไม่มี tracking ไม่มีระบบ login สิ่งที่เกิดขึ้นในแอปอยู่ในเครื่องคุณเท่านั้น
 
@@ -61,9 +61,10 @@ type PurchaseEntry = {
 type SchemeSetting = {
   subsidyRate: number   // default 0.6
   dailyCap: number      // default 200
-  monthlyCap: number    // default 1000
-  startDate?: string    // campaign start date YYYY-MM-DD
-  endDate?: string      // campaign end date YYYY-MM-DD
+  monthlyCap: number    // default 1000 (resets on 1st of each month, does not carry over)
+  totalCap: number      // default 4000 (max subsidy over entire campaign lifetime)
+  startDate?: string    // default '2026-06-01' (ไทยช่วยไทย พลัส campaign start)
+  endDate?: string      // default '2026-09-30' (ไทยช่วยไทย พลัส campaign end)
   currency: 'THB'
   updatedAt: string
 }
@@ -89,28 +90,34 @@ type AppSetting = {
 function calculateDailySubsidy(
   entries: PurchaseEntry[],
   setting: SchemeSetting,
-  monthUsedBefore: number  // subsidy already used earlier in the same month
+  monthUsedBefore: number,  // subsidy used earlier in the same month (excluding today)
+  totalUsedBefore: number,  // subsidy used since campaign startDate (excluding today)
 ): EnrichedEntry[]
 
 // Per entry:
 // proportional = amount × subsidyRate
-// actual = min(proportional, remainingDaily, remainingMonthly)
+// actual = min(proportional, remainingDaily, remainingMonthly, remainingTotal, amount)
 // userPaid = amount - actual
-// Update runningDaily += actual, runningMonthly += actual
+// Update runningDaily += actual, runningMonthly += actual, runningTotal += actual
 ```
 
 ### Summary functions
 ```ts
-function getDailySummary(date: string, setting: SchemeSetting): DailySummary
-// returns: { totalAmount, totalSubsidy, totalUserPaid, remainingDaily, remainingMonthly, toFillDaily }
+function getDailySummary(
+  entries: PurchaseEntry[],
+  setting: SchemeSetting,
+  monthUsedBefore: number,
+  totalUsedBefore: number,
+): DailySummary
+// returns: { totalAmount, totalSubsidy, totalUserPaid, remainingDaily, remainingMonthly, remainingTotal, toFillDaily }
 
-function getMonthlySummary(month: string, setting: SchemeSetting): MonthlySummary
+function getMonthlySummary(allMonthEntries: PurchaseEntry[], setting: SchemeSetting): MonthlySummary
 // returns: { totalAmount, totalSubsidy, totalUserPaid, remainingMonthly }
 ```
 
 ### toFillDaily (ปุ่ม "เต็มสิทธิวันนี้")
 ```ts
-toFillDaily = ceil(min(remainingDaily, remainingMonthly) / subsidyRate)
+toFillDaily = ceil(min(remainingDaily, remainingMonthly, remainingTotal) / subsidyRate)
 // e.g. remainingDaily=80, rate=0.6 → ceil(80/0.6) = 134 บาท
 ```
 

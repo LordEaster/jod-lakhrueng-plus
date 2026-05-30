@@ -264,6 +264,7 @@ export type DailySummary = {
   totalUserPaid: number
   remainingDaily: number
   remainingMonthly: number
+  remainingTotal: number   // remaining over entire campaign lifetime
   toFillDaily: number      // amount to buy to max out today's subsidy
   entries: EnrichedEntry[]
 }
@@ -282,9 +283,10 @@ export type MonthlySummary = {
 export type SchemeSetting = {
   subsidyRate: number    // default 0.6
   dailyCap: number       // default 200
-  monthlyCap: number     // default 1000
-  startDate?: string     // campaign start YYYY-MM-DD
-  endDate?: string       // campaign end YYYY-MM-DD
+  monthlyCap: number     // default 1000 (resets monthly, does not carry over)
+  totalCap: number       // default 4000 (max over entire campaign lifetime)
+  startDate?: string     // default '2026-06-01'
+  endDate?: string       // default '2026-09-30'
   currency: 'THB'
   updatedAt: string
 }
@@ -300,6 +302,9 @@ export const DEFAULT_SCHEME: SchemeSetting = {
   subsidyRate: 0.6,
   dailyCap: 200,
   monthlyCap: 1000,
+  totalCap: 4000,
+  startDate: '2026-06-01',
+  endDate: '2026-09-30',
   currency: 'THB',
   updatedAt: new Date().toISOString(),
 }
@@ -345,6 +350,9 @@ const scheme: SchemeSetting = {
   subsidyRate: 0.6,
   dailyCap: 200,
   monthlyCap: 1000,
+  totalCap: 4000,
+  startDate: '2026-06-01',
+  endDate: '2026-09-30',
   currency: 'THB',
   updatedAt: '',
 }
@@ -363,7 +371,7 @@ function makeEntry(amount: number, createdAt: string, date = '2026-05-30'): Purc
 describe('calculateDailySubsidy', () => {
   it('calculates 60% subsidy for basic purchase', () => {
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
-    const result = calculateDailySubsidy(entries, scheme, 0)
+    const result = calculateDailySubsidy(entries, scheme, 0, 0)
     expect(result[0].subsidyAmount).toBe(60)
     expect(result[0].userPaidAmount).toBe(40)
   })
@@ -371,7 +379,7 @@ describe('calculateDailySubsidy', () => {
   it('caps subsidy at dailyCap', () => {
     // 400 × 0.6 = 240, but dailyCap = 200
     const entries = [makeEntry(400, '2026-05-30T10:00:00.000Z')]
-    const result = calculateDailySubsidy(entries, scheme, 0)
+    const result = calculateDailySubsidy(entries, scheme, 0, 0)
     expect(result[0].subsidyAmount).toBe(200)
     expect(result[0].userPaidAmount).toBe(200)
   })
@@ -383,7 +391,7 @@ describe('calculateDailySubsidy', () => {
       makeEntry(200, '2026-05-30T09:00:00.000Z'),
       makeEntry(200, '2026-05-30T10:00:00.000Z'),
     ]
-    const result = calculateDailySubsidy(entries, scheme, 0)
+    const result = calculateDailySubsidy(entries, scheme, 0, 0)
     expect(result[0].subsidyAmount).toBe(120)
     expect(result[1].subsidyAmount).toBe(80)
     expect(result[1].userPaidAmount).toBe(120)
@@ -393,62 +401,73 @@ describe('calculateDailySubsidy', () => {
     // monthUsedBefore = 980, monthlyCap = 1000, remaining = 20
     // 100 × 0.6 = 60, but monthlyRemaining = 20
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
-    const result = calculateDailySubsidy(entries, scheme, 980)
+    const result = calculateDailySubsidy(entries, scheme, 980, 980)
     expect(result[0].subsidyAmount).toBe(20)
     expect(result[0].userPaidAmount).toBe(80)
   })
 
-  it('gives zero subsidy when both caps exhausted', () => {
+  it('gives zero subsidy when monthly cap exhausted', () => {
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
-    const result = calculateDailySubsidy(entries, scheme, 1000)
+    const result = calculateDailySubsidy(entries, scheme, 1000, 1000)
     expect(result[0].subsidyAmount).toBe(0)
     expect(result[0].userPaidAmount).toBe(100)
+  })
+
+  it('caps at totalCap when it is the binding constraint', () => {
+    // totalCap = 4000, totalUsedBefore = 3990, remaining total = 10
+    // 100 × 0.6 = 60, but totalRemaining = 10
+    const schemeWithTotal = { ...scheme, totalCap: 4000 }
+    const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
+    const result = calculateDailySubsidy(entries, schemeWithTotal, 0, 3990)
+    expect(result[0].subsidyAmount).toBe(10)
+    expect(result[0].userPaidAmount).toBe(90)
   })
 })
 
 describe('getDailySummary', () => {
   it('returns correct totals and remainders', () => {
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
-    const summary = getDailySummary(entries, scheme, 0)
+    const summary = getDailySummary(entries, scheme, 0, 0)
     expect(summary.totalAmount).toBe(100)
     expect(summary.totalSubsidy).toBe(60)
     expect(summary.totalUserPaid).toBe(40)
     expect(summary.remainingDaily).toBe(140)
     expect(summary.remainingMonthly).toBe(940)
+    expect(summary.remainingTotal).toBe(3940)
   })
 
   it('calculates toFillDaily correctly', () => {
-    // After 100 baht purchase: remainingDaily = 140, remainingMonthly = 940
-    // min(140, 940) = 140, ceil(140 / 0.6) = ceil(233.33) = 234
+    // After 100 baht: remainingDaily=140, remainingMonthly=940, remainingTotal=3940
+    // min(140, 940, 3940) = 140, ceil(140 / 0.6) = ceil(233.33) = 234
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
-    const summary = getDailySummary(entries, scheme, 0)
+    const summary = getDailySummary(entries, scheme, 0, 0)
     expect(summary.toFillDaily).toBe(234)
   })
 
-  it('toFillDaily uses monthly remaining when it is lower', () => {
-    // monthUsedBefore = 880, after 100 baht: monthlyUsed = 880+60 = 940, remaining = 60
-    // remainingDaily = 140, remainingMonthly = 60
-    // min(140, 60) = 60, ceil(60 / 0.6) = 100
+  it('toFillDaily uses totalCap remaining when it is the binding constraint', () => {
+    // totalUsedBefore = 3940, after 100 baht: totalRemaining = 4000-3940-60 = 0... let's use 3920
+    // totalUsedBefore = 3920, 100 baht → subsidy 60, totalRemaining = 4000-3920-60 = 20
+    // min(140, 940, 20) = 20, ceil(20 / 0.6) = ceil(33.33) = 34
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
-    const summary = getDailySummary(entries, scheme, 880)
-    expect(summary.toFillDaily).toBe(100)
+    const summary = getDailySummary(entries, scheme, 0, 3920)
+    expect(summary.toFillDaily).toBe(34)
+    expect(summary.remainingTotal).toBe(20)
   })
 
   it('returns toFillDaily = 0 when daily cap exhausted', () => {
     const entries = [makeEntry(400, '2026-05-30T10:00:00.000Z')]
-    const summary = getDailySummary(entries, scheme, 0)
+    const summary = getDailySummary(entries, scheme, 0, 0)
     expect(summary.toFillDaily).toBe(0)
     expect(summary.remainingDaily).toBe(0)
   })
 
   it('sorts entries by createdAt before calculating', () => {
-    // Entry added out of order — later createdAt should be processed second
     const entries = [
       makeEntry(200, '2026-05-30T11:00:00.000Z'), // processed 2nd
       makeEntry(200, '2026-05-30T09:00:00.000Z'), // processed 1st
     ]
-    const summary = getDailySummary(entries, scheme, 0)
-    // First (09:00): 200×0.6=120 subsidy, remaining=80
+    const summary = getDailySummary(entries, scheme, 0, 0)
+    // First (09:00): 200×0.6=120, remaining daily=80
     // Second (11:00): 200×0.6=120, capped at 80
     expect(summary.totalSubsidy).toBe(200)
   })
@@ -493,19 +512,23 @@ export function calculateDailySubsidy(
   entries: PurchaseEntry[],
   setting: SchemeSetting,
   monthUsedBefore: number,
+  totalUsedBefore: number,
 ): EnrichedEntry[] {
   let runningDaily = 0
   let runningMonthly = monthUsedBefore
+  let runningTotal = totalUsedBefore
 
   return entries.map((entry) => {
     const remainingDaily = setting.dailyCap - runningDaily
     const remainingMonthly = setting.monthlyCap - runningMonthly
+    const remainingTotal = setting.totalCap - runningTotal
     const proportional = entry.amount * setting.subsidyRate
-    const subsidyAmount = Math.min(proportional, remainingDaily, remainingMonthly, entry.amount)
+    const subsidyAmount = Math.min(proportional, remainingDaily, remainingMonthly, remainingTotal, entry.amount)
     const userPaidAmount = entry.amount - subsidyAmount
 
     runningDaily += subsidyAmount
     runningMonthly += subsidyAmount
+    runningTotal += subsidyAmount
 
     return { ...entry, subsidyAmount, userPaidAmount }
   })
@@ -515,9 +538,10 @@ export function getDailySummary(
   entries: PurchaseEntry[],
   setting: SchemeSetting,
   monthUsedBefore: number,
+  totalUsedBefore: number,
 ): DailySummary {
   const sorted = [...entries].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-  const enriched = calculateDailySubsidy(sorted, setting, monthUsedBefore)
+  const enriched = calculateDailySubsidy(sorted, setting, monthUsedBefore, totalUsedBefore)
 
   const totalSubsidy = enriched.reduce((sum, e) => sum + e.subsidyAmount, 0)
   const totalAmount = enriched.reduce((sum, e) => sum + e.amount, 0)
@@ -525,15 +549,17 @@ export function getDailySummary(
 
   const remainingDaily = Math.max(0, setting.dailyCap - totalSubsidy)
   const remainingMonthly = Math.max(0, setting.monthlyCap - monthUsedBefore - totalSubsidy)
-  const effectiveRemaining = Math.min(remainingDaily, remainingMonthly)
+  const remainingTotal = Math.max(0, setting.totalCap - totalUsedBefore - totalSubsidy)
+  const effectiveRemaining = Math.min(remainingDaily, remainingMonthly, remainingTotal)
   const toFillDaily = effectiveRemaining > 0 ? Math.ceil(effectiveRemaining / setting.subsidyRate) : 0
 
-  return { totalAmount, totalSubsidy, totalUserPaid, remainingDaily, remainingMonthly, toFillDaily, entries: enriched }
+  return { totalAmount, totalSubsidy, totalUserPaid, remainingDaily, remainingMonthly, remainingTotal, toFillDaily, entries: enriched }
 }
 
 export function getMonthlySummary(
   allMonthEntries: PurchaseEntry[],
   setting: SchemeSetting,
+  totalUsedBeforeMonth: number = 0,
 ): MonthlySummary {
   const byDate = new Map<string, PurchaseEntry[]>()
   for (const entry of allMonthEntries) {
@@ -543,13 +569,15 @@ export function getMonthlySummary(
 
   const sortedDates = [...byDate.keys()].sort()
   let runningMonthly = 0
+  let runningTotal = totalUsedBeforeMonth
   let totalAmount = 0
 
   for (const date of sortedDates) {
     const dayEntries = [...byDate.get(date)!].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-    const enriched = calculateDailySubsidy(dayEntries, setting, runningMonthly)
+    const enriched = calculateDailySubsidy(dayEntries, setting, runningMonthly, runningTotal)
     for (const e of enriched) {
       runningMonthly += e.subsidyAmount
+      runningTotal += e.subsidyAmount
       totalAmount += e.amount
     }
   }
@@ -1044,16 +1072,27 @@ export function useDailySummary(scheme: SchemeSetting): DailySummary | undefined
     const today = todayKey()
     const thisMonth = thisMonthKey()
 
-    const [dayEntries, allMonthEntries] = await Promise.all([
+    // All purchases this month + all purchases before this month (for totalCap)
+    const [dayEntries, allMonthEntries, allPriorEntries] = await Promise.all([
       db.purchases.where('date').equals(today).toArray(),
       db.purchases.where('month').equals(thisMonth).toArray(),
+      // Purchases from previous months (for total cap tracking)
+      scheme.startDate
+        ? db.purchases.where('month').below(thisMonth).toArray()
+        : Promise.resolve([]),
     ])
 
-    const priorDayEntries = allMonthEntries.filter((e) => e.date < today)
-    const { totalSubsidy: monthUsedBefore } = getMonthlySummary(priorDayEntries, scheme)
+    // totalSubsidy from all months before this month
+    const { totalSubsidy: prevMonthsTotal } = getMonthlySummary(allPriorEntries, scheme, 0)
 
-    return getDailySummary(dayEntries, scheme, monthUsedBefore)
-  }, [scheme.subsidyRate, scheme.dailyCap, scheme.monthlyCap])
+    // monthUsedBefore = subsidy from prior days within this month
+    const priorDayEntries = allMonthEntries.filter((e) => e.date < today)
+    const { totalSubsidy: monthUsedBefore } = getMonthlySummary(priorDayEntries, scheme, prevMonthsTotal)
+
+    const totalUsedBefore = prevMonthsTotal + monthUsedBefore
+
+    return getDailySummary(dayEntries, scheme, monthUsedBefore, totalUsedBefore)
+  }, [scheme.subsidyRate, scheme.dailyCap, scheme.monthlyCap, scheme.totalCap])
 }
 ```
 
@@ -1187,6 +1226,12 @@ export default function TodaySummaryCard({ summary, dailyCap }: Props) {
             <p className="text-gray-500 text-sm">ซื้อเพิ่มอีกประมาณ</p>
             <p className="text-2xl font-bold text-gray-800">{formatAmount(summary.toFillDaily)} <span className="text-base font-normal">บาท</span></p>
             <p className="text-xs text-gray-400">จะเต็มสิทธิวันนี้</p>
+          </div>
+        )}
+        {summary.remainingTotal < dailyCap && summary.remainingTotal > 0 && (
+          <div className="bg-white rounded-xl p-3 col-span-2">
+            <p className="text-gray-500 text-sm">วงเงินรวมตลอดโครงการเหลืออีก</p>
+            <p className="text-xl font-bold text-orange-600">{formatAmount(summary.remainingTotal)} <span className="text-base font-normal">บาท</span></p>
           </div>
         )}
       </div>
@@ -1364,7 +1409,7 @@ export default function HomePage() {
       <div className="max-w-md mx-auto">
         <header className="px-4 pt-6 pb-2">
           <h1 className="text-2xl font-bold text-gray-800">จดละครึ่ง พลัส</h1>
-          <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการคนละครึ่ง พลัส</p>
+          <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
         </header>
         <CampaignLockScreen status={status} startDate={startDate} endDate={endDate} />
       </div>
@@ -1375,7 +1420,7 @@ export default function HomePage() {
     <div className="max-w-md mx-auto">
       <header className="px-4 pt-6 pb-2">
         <h1 className="text-2xl font-bold text-gray-800">จดละครึ่ง พลัส</h1>
-        <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการคนละครึ่ง พลัส</p>
+        <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
       </header>
 
       {appSetting.showInstallHint && <InstallHint onDismiss={dismissInstallHint} />}
@@ -2137,6 +2182,7 @@ export default function SettingsPage() {
   const [subsidyRate, setSubsidyRate] = useState('')
   const [dailyCap, setDailyCap] = useState('')
   const [monthlyCap, setMonthlyCap] = useState('')
+  const [totalCap, setTotalCap] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [fontSizeMode, setFontSizeMode] = useState<'normal' | 'large' | 'extra-large'>('normal')
@@ -2149,6 +2195,7 @@ export default function SettingsPage() {
     setSubsidyRate(String(scheme.subsidyRate * 100))
     setDailyCap(String(scheme.dailyCap))
     setMonthlyCap(String(scheme.monthlyCap))
+    setTotalCap(String(scheme.totalCap))
     setStartDate(scheme.startDate ?? '')
     setEndDate(scheme.endDate ?? '')
   }, [scheme])
@@ -2162,6 +2209,7 @@ export default function SettingsPage() {
       subsidyRate: parseFloat(subsidyRate) / 100 || 0.6,
       dailyCap: parseFloat(dailyCap) || 200,
       monthlyCap: parseFloat(monthlyCap) || 1000,
+      totalCap: parseFloat(totalCap) || 4000,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       currency: 'THB',
@@ -2174,8 +2222,9 @@ export default function SettingsPage() {
     setSubsidyRate(String(DEFAULT_SCHEME.subsidyRate * 100))
     setDailyCap(String(DEFAULT_SCHEME.dailyCap))
     setMonthlyCap(String(DEFAULT_SCHEME.monthlyCap))
-    setStartDate('')
-    setEndDate('')
+    setTotalCap(String(DEFAULT_SCHEME.totalCap))
+    setStartDate(DEFAULT_SCHEME.startDate ?? '')
+    setEndDate(DEFAULT_SCHEME.endDate ?? '')
   }
 
   async function handleSaveFontSize() {
@@ -2267,7 +2316,16 @@ export default function SettingsPage() {
           </div>
 
           <div>
-            <label htmlFor="startDate" className={labelClass}>วันเริ่มโครงการ (ไม่บังคับ)</label>
+            <label htmlFor="totalCap" className={labelClass}>วงเงินรวมตลอดโครงการ</label>
+            <div className="relative">
+              <input id="totalCap" type="number" value={totalCap} onChange={(e) => setTotalCap(e.target.value)} className={inputClass} />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">บาท</span>
+            </div>
+            <p className="text-sm text-gray-400 mt-1">ไทยช่วยไทย พลัส: 4,000 บาท ตลอดโครงการ</p>
+          </div>
+
+          <div>
+            <label htmlFor="startDate" className={labelClass}>วันเริ่มโครงการ</label>
             <input id="startDate" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
           </div>
 
@@ -2406,7 +2464,7 @@ export default function PrivacyPage() {
 
         <div>
           <h2 className="text-xl font-semibold mb-2">เว็บนี้ไม่ใช่เว็บทางการ</h2>
-          <p className="text-gray-600">จดละครึ่ง พลัส เป็นเครื่องมือช่วยจดส่วนตัว พัฒนาขึ้นเพื่อความสนุกและเพื่อแก้ปัญหาที่พบในชีวิตจริง ไม่ใช่เว็บไซต์ทางการของหน่วยงานรัฐหรือของโครงการคนละครึ่ง พลัส</p>
+          <p className="text-gray-600">จดละครึ่ง พลัส เป็นเครื่องมือช่วยจดส่วนตัว พัฒนาขึ้นเพื่อความสนุกและเพื่อแก้ปัญหาที่พบในชีวิตจริง ไม่ใช่เว็บไซต์ทางการของหน่วยงานรัฐหรือของโครงการไทยช่วยไทย พลัส (60/40)</p>
         </div>
       </div>
     </div>
@@ -2465,7 +2523,7 @@ export default defineConfig({
       manifest: {
         name: 'จดละครึ่ง พลัส',
         short_name: 'จดละครึ่ง',
-        description: 'ติดตามสิทธิโครงการคนละครึ่ง พลัส',
+        description: 'ติดตามสิทธิโครงการไทยช่วยไทย พลัส (60/40)',
         theme_color: '#2563EB',
         background_color: '#ffffff',
         display: 'standalone',
