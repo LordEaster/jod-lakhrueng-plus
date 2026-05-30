@@ -4,7 +4,7 @@ import { db } from '../db/db'
 import { updatePurchase, deletePurchase } from '../db/purchaseRepository'
 import { useSchemeSetting } from '../hooks/useSettings'
 import { useMonthlySummary } from '../hooks/useMonthlySummary'
-import { calculateDailySubsidy } from '../logic/calculateSubsidy'
+import { calculateDailySubsidy, getMonthlySummary } from '../logic/calculateSubsidy'
 import { formatThaiDate, formatThaiMonth, formatAmount, thisMonthKey } from '../logic/formatThai'
 import { type EnrichedEntry } from '../types/purchase'
 import PurchaseListItem from '../components/PurchaseListItem'
@@ -33,7 +33,15 @@ export default function HistoryPage() {
     return (all as string[]).reverse()
   }, [])
 
-  function enrichEntries(entries: PurchaseEntry[]): EnrichedEntry[] {
+  const priorMonthEntries = useLiveQuery(
+    async () => {
+      if (!scheme.startDate) return []
+      return db.purchases.where('month').below(selectedMonth).toArray()
+    },
+    [selectedMonth, scheme.startDate],
+  )
+
+  function enrichEntries(entries: PurchaseEntry[], prevMonthsTotal: number): EnrichedEntry[] {
     const byDate = new Map<string, PurchaseEntry[]>()
     for (const e of entries) {
       if (!byDate.has(e.date)) byDate.set(e.date, [])
@@ -41,19 +49,22 @@ export default function HistoryPage() {
     }
     const sortedDates = [...byDate.keys()].sort()
     let runningMonthly = 0
+    let runningTotal = prevMonthsTotal
     const result: EnrichedEntry[] = []
     for (const date of sortedDates) {
       const dayEntries = [...byDate.get(date)!].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-      const enriched = calculateDailySubsidy(dayEntries, scheme, runningMonthly, 0)
+      const enriched = calculateDailySubsidy(dayEntries, scheme, runningMonthly, runningTotal)
       for (const e of enriched) {
         runningMonthly += e.subsidyAmount
+        runningTotal += e.subsidyAmount
         result.push(e)
       }
     }
     return result
   }
 
-  const enrichedEntries = monthEntries ? enrichEntries(monthEntries) : []
+  const prevTotal = priorMonthEntries ? getMonthlySummary(priorMonthEntries, scheme, 0).totalSubsidy : 0
+  const enrichedEntries = monthEntries ? enrichEntries(monthEntries, prevTotal) : []
 
   const byDate = new Map<string, EnrichedEntry[]>()
   for (const e of enrichedEntries) {

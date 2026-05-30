@@ -5,7 +5,7 @@ import { db } from '../db/db'
 import { addPurchase } from '../db/purchaseRepository'
 import { useSchemeSetting } from '../hooks/useSettings'
 import { useDailySummary } from '../hooks/useDailySummary'
-import { getMonthlySummary } from '../logic/calculateSubsidy'
+import { calculateDailySubsidy, getMonthlySummary } from '../logic/calculateSubsidy'
 import { formatAmount, thisMonthKey, todayKey } from '../logic/formatThai'
 import { CATEGORY_LABELS, type PurchaseCategory } from '../types/purchase'
 import AmountShortcutGrid from '../components/AmountShortcutGrid'
@@ -49,21 +49,35 @@ export default function AddPurchasePage() {
   }
 
   async function doSave() {
-    const monthEntries = await db.purchases.where('month').equals(thisMonthKey()).toArray()
-    const priorEntries = monthEntries.filter((e) => e.date < todayKey())
-    const { totalSubsidy: monthUsedBefore } = getMonthlySummary(priorEntries, scheme)
+    const thisMonth = thisMonthKey()
+    const today = todayKey()
 
-    const dayEntries = await db.purchases.where('date').equals(todayKey()).toArray()
-    const currentDailyUsed = dayEntries.reduce((sum, e) => {
-      const proportional = e.amount * scheme.subsidyRate
-      return sum + Math.min(proportional, scheme.dailyCap - sum, scheme.monthlyCap - monthUsedBefore - sum)
-    }, 0)
+    const [allMonthEntries, allPriorEntries] = await Promise.all([
+      db.purchases.where('month').equals(thisMonth).toArray(),
+      scheme.startDate
+        ? db.purchases.where('month').below(thisMonth).toArray()
+        : Promise.resolve([]),
+    ])
 
-    const remainingDaily = Math.max(0, scheme.dailyCap - currentDailyUsed)
-    const remainingMonthly = Math.max(0, scheme.monthlyCap - monthUsedBefore - currentDailyUsed)
-    const proportional = numAmount * scheme.subsidyRate
-    const subsidyAmount = Math.min(proportional, remainingDaily, remainingMonthly, numAmount)
-    const userPaidAmount = numAmount - subsidyAmount
+    const { totalSubsidy: prevMonthsTotal } = getMonthlySummary(allPriorEntries, scheme, 0)
+    const priorDayEntries = allMonthEntries.filter((e) => e.date < today)
+    const { totalSubsidy: monthUsedBefore } = getMonthlySummary(priorDayEntries, scheme, prevMonthsTotal)
+    const totalUsedBefore = prevMonthsTotal + monthUsedBefore
+
+    const dayEntriesSoFar = await db.purchases.where('date').equals(today).toArray()
+    const tempEntry = {
+      id: 'preview',
+      date: today,
+      month: thisMonth,
+      amount: numAmount,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    const allDayEntries = [...dayEntriesSoFar, tempEntry].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    const enriched = calculateDailySubsidy(allDayEntries, scheme, monthUsedBefore, totalUsedBefore)
+    const newEntryEnriched = enriched.find((e) => e.id === 'preview')!
+    const subsidyAmount = newEntryEnriched.subsidyAmount
+    const userPaidAmount = newEntryEnriched.userPaidAmount
 
     await addPurchase({
       amount: numAmount,

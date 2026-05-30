@@ -11,7 +11,13 @@ export function useMonthlySummary(
 ): MonthlySummary | undefined {
   return useLiveQuery(async () => {
     const targetMonth = month ?? thisMonthKey()
-    const entries = await db.purchases.where('month').equals(targetMonth).toArray()
-    return getMonthlySummary(entries, scheme)
-  }, [scheme.subsidyRate, scheme.monthlyCap, month])
+    const [entries, priorEntries] = await Promise.all([
+      db.purchases.where('month').equals(targetMonth).toArray(),
+      scheme.startDate
+        ? db.purchases.where('month').below(targetMonth).toArray()
+        : Promise.resolve([]),
+    ])
+    const { totalSubsidy: totalUsedBeforeMonth } = getMonthlySummary(priorEntries, scheme, 0)
+    return getMonthlySummary(entries, scheme, totalUsedBeforeMonth)
+  }, [scheme.subsidyRate, scheme.monthlyCap, scheme.totalCap, month])
 }
