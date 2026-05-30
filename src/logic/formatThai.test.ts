@@ -39,6 +39,11 @@ describe('formatAmount', () => {
     expect(formatAmount(1234)).toBe('1,234')
     expect(formatAmount(200)).toBe('200')
   })
+
+  it('formats decimal amounts with up to two decimal places', () => {
+    expect(formatAmount(1234.5)).toBe('1,234.5')
+    expect(formatAmount(1234.567)).toBe('1,234.57')
+  })
 })
 
 describe('dateToMonth', () => {

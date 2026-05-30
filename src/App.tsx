@@ -3,9 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import AppPreferences from './components/AppPreferences'
 import BottomNav from './components/BottomNav'
 import HomePage from './pages/HomePage'
-import AddPurchasePage from './pages/AddPurchasePage'
 import { PageSkeleton } from './components/Skeleton'
 
+const AddPurchasePage = lazy(() => import('./pages/AddPurchasePage'))
 const HistoryPage = lazy(() => import('./pages/HistoryPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))

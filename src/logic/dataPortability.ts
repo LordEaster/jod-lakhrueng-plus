@@ -1,8 +1,8 @@
-import readXlsxFile from 'read-excel-file/browser'
-import writeXlsxFile, { type SheetData } from 'write-excel-file/browser'
+import type { SheetData } from 'write-excel-file/browser'
 import { nanoid } from 'nanoid'
 import { calculateDailySubsidy } from './calculateSubsidy'
 import { dateToMonth } from './formatThai'
+import { roundMoney } from './money'
 import { CATEGORY_LABELS, type PurchaseCategory, type PurchaseEntry } from '../types/purchase'
 import type { SchemeSetting } from '../types/setting'
 
@@ -57,6 +57,7 @@ export class ImportFileError extends Error {
 }
 
 export async function createPurchasesXlsxBlob(purchases: PurchaseEntry[], scheme: SchemeSetting): Promise<Blob> {
+  const { default: writeXlsxFile } = await import('write-excel-file/browser')
   const data: SheetData = [
     EXPORT_HEADERS.map((header) => ({ value: header, fontWeight: 'bold' })),
     ...toPortableRows(purchases, scheme).map((row) => [
@@ -103,6 +104,7 @@ export async function parsePurchasesFile(file: File): Promise<PurchaseEntry[]> {
   }
   if (fileName.endsWith('.xlsx')) {
     try {
+      const { default: readXlsxFile } = await import('read-excel-file/browser')
       const sheets = await readXlsxFile(file)
       return parsePurchasesRows(sheets[0]?.data ?? [])
     } catch {
@@ -220,7 +222,7 @@ function normalizeText(value: unknown): string | undefined {
 
 function normalizeAmount(value: unknown): number | undefined {
   const amount = typeof value === 'number' ? value : Number(String(value ?? '').replace(/,/g, '').trim())
-  return Number.isFinite(amount) && amount > 0 ? amount : undefined
+  return Number.isFinite(amount) && amount > 0 ? roundMoney(amount) : undefined
 }
 
 function normalizeDate(value: unknown): string | undefined {

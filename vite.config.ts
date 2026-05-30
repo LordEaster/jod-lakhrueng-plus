@@ -10,6 +10,7 @@ declare const process: {
 const appVersion = packageJson.version
 const builtAt = new Date().toISOString()
 const buildId = process.env.GITHUB_SHA?.slice(0, 12) ?? builtAt
+const assetVersion = encodeURIComponent(buildId)
 
 export default defineConfig({
   base: '/',
@@ -35,9 +36,12 @@ export default defineConfig({
       },
     },
     VitePWA({
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'logo.svg'],
+      injectRegister: false,
+      includeManifestIcons: false,
       manifest: {
         name: 'จดละครึ่ง พลัส',
         short_name: 'จดละครึ่ง',
@@ -46,19 +50,16 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/',
+        id: '/',
         lang: 'th',
         icons: [
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: `pwa-192x192.png?v=${assetVersion}`, sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: `pwa-512x512.png?v=${assetVersion}`, sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: `maskable-icon-512x512.png?v=${assetVersion}`, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,avif,webp,woff2}'],
-        navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api/],
+      injectManifest: {
+        injectionPoint: undefined,
       },
     }),
   ],
@@ -66,5 +67,16 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/read-excel-file')) return 'xlsx-read'
+          if (id.includes('node_modules/write-excel-file')) return 'xlsx-write'
+          if (id.includes('node_modules/fflate')) return 'xlsx-zip'
+        },
+      },
+    },
   },
 })

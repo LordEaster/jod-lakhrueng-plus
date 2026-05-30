@@ -1,4 +1,7 @@
-const VERSION_CHECK_INTERVAL_MS = 15 * 60 * 1000
+const VERSION_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000
+const VERSION_CHECK_THROTTLE_MS = 60 * 60 * 1000
+
+let lastVersionCheckAt = 0
 
 type VersionManifest = {
   version: string
@@ -21,6 +24,10 @@ async function fetchVersionManifest(): Promise<VersionManifest | null> {
 }
 
 async function checkForUpdatedVersion(registration?: ServiceWorkerRegistration) {
+  const now = Date.now()
+  if (now - lastVersionCheckAt < VERSION_CHECK_THROTTLE_MS) return
+  lastVersionCheckAt = now
+
   const remoteVersion = await fetchVersionManifest()
   if (!remoteVersion?.buildId || remoteVersion.buildId === __APP_BUILD_ID__) return
 
@@ -36,7 +43,7 @@ export function startVersionUpdateChecks(registration?: ServiceWorkerRegistratio
   }, VERSION_CHECK_INTERVAL_MS)
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
+    if (document.visibilityState === 'visible' && Date.now() - lastVersionCheckAt >= VERSION_CHECK_THROTTLE_MS) {
       void checkForUpdatedVersion(registration)
     }
   })

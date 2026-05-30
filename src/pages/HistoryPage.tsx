@@ -6,6 +6,7 @@ import { useSchemeSetting } from '../hooks/useSettings'
 import { useMonthlySummary } from '../hooks/useMonthlySummary'
 import { calculateDailySubsidy, getMonthlySummary } from '../logic/calculateSubsidy'
 import { formatThaiDate, formatThaiMonth, formatAmount, thisMonthKey } from '../logic/formatThai'
+import { parseMoneyInput, sanitizeMoneyInput } from '../logic/money'
 import { type EnrichedEntry } from '../types/purchase'
 import PurchaseListItem from '../components/PurchaseListItem'
 import ConfirmDialog from '../components/ConfirmDialog'
@@ -92,8 +93,8 @@ export default function HistoryPage() {
 
   async function handleEdit() {
     if (!editTarget) return
-    const newAmount = parseFloat(editAmount)
-    if (!newAmount || newAmount <= 0) return
+    const newAmount = parseMoneyInput(editAmount)
+    if (!newAmount) return
     await updatePurchase(editTarget.id, {
       amount: newAmount,
       title: editTitle.trim() || undefined,
@@ -179,17 +180,18 @@ export default function HistoryPage() {
       )}
 
       {editTarget && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4" role="dialog" aria-modal="true">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[calc(100vh-2rem)] overflow-y-auto shadow-xl">
             <h2 className="text-xl font-bold text-gray-800 mb-4">แก้ไขรายการ</h2>
             <div className="space-y-3">
               <div>
                 <label className="text-base text-gray-500 block mb-1">ยอดซื้อ (บาท)</label>
                 <input
-                  type="number"
+                  type="text"
                   inputMode="decimal"
+                  pattern="[0-9]*[.]?[0-9]{0,2}"
                   value={editAmount}
-                  onChange={(e) => setEditAmount(e.target.value)}
+                  onChange={(e) => setEditAmount(sanitizeMoneyInput(e.target.value))}
                   className="w-full text-2xl font-bold border-2 border-gray-300 rounded-2xl px-4 py-3 focus:border-blue-500 focus:outline-none text-center"
                   autoFocus
                 />

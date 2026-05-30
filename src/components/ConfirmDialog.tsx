@@ -17,12 +17,12 @@ export default function ConfirmDialog({
 }: Props) {
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={message}
     >
-      <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[calc(100vh-2rem)] overflow-y-auto shadow-xl">
         <p className="text-xl font-semibold text-gray-800 text-center">{message}</p>
         {subMessage && <p className="text-base text-gray-500 text-center mt-2">{subMessage}</p>}
         <div className="flex gap-3 mt-6">

@@ -62,6 +62,16 @@ describe('data portability', () => {
     ])
   })
 
+  it('rounds imported decimal amounts to two places', async () => {
+    const csv = [
+      'วันที่,รายการ,ยอดซื้อ',
+      '2026-05-31,กาแฟ,65.239',
+    ].join('\n')
+
+    const imported = await parsePurchasesFile(new File([csv], 'manual.csv'))
+    expect(imported[0].amount).toBe(65.24)
+  })
+
   it('rejects unsupported import file types', async () => {
     await expect(parsePurchasesFile(new File(['hello'], 'manual.txt'))).rejects.toMatchObject({
       code: 'unsupported-file-type',

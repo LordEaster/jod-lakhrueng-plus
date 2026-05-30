@@ -18,7 +18,7 @@ export function formatThaiMonth(isoMonth: string): string {
 }
 
 export function formatAmount(amount: number): string {
-  return amount.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+  return amount.toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 
 export function todayKey(): string {

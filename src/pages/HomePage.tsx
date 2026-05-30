@@ -22,14 +22,14 @@ function HomeHeader() {
       <picture>
         <source
           type="image/avif"
-          srcSet="/logo-240.avif 1x, /logo-480.avif 2x, /logo-720.avif 3x"
+          srcSet="/logo-240.avif 1x, /logo-480.avif 2x"
         />
         <source
           type="image/webp"
-          srcSet="/logo-240.webp 1x, /logo-480.webp 2x, /logo-720.webp 3x"
+          srcSet="/logo-240.webp 1x, /logo-480.webp 2x"
         />
         <img
-          src="/logo-720.webp"
+          src="/logo-240.webp"
           alt="จดละครึ่ง พลัส"
           width="240"
           height="80"

@@ -37,6 +37,13 @@ describe('calculateDailySubsidy', () => {
     expect(result[0].userPaidAmount).toBe(40)
   })
 
+  it('rounds decimal purchase calculations to two decimals', () => {
+    const entries = [makeEntry(10.01, '2026-05-30T10:00:00.000Z')]
+    const result = calculateDailySubsidy(entries, scheme, 0, 0)
+    expect(result[0].subsidyAmount).toBe(6.01)
+    expect(result[0].userPaidAmount).toBe(4)
+  })
+
   it('caps subsidy at dailyCap', () => {
     // 400 × 0.6 = 240, but dailyCap = 200
     const entries = [makeEntry(400, '2026-05-30T10:00:00.000Z')]
@@ -99,18 +106,18 @@ describe('getDailySummary', () => {
 
   it('calculates toFillDaily correctly', () => {
     // After 100 baht: remainingDaily=140, remainingMonthly=940, remainingTotal=3940
-    // min(140, 940, 3940) = 140, ceil(140 / 0.6) = ceil(233.33) = 234
+    // min(140, 940, 3940) = 140, rounded up to the next satang.
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
     const summary = getDailySummary(entries, scheme, 0, 0)
-    expect(summary.toFillDaily).toBe(234)
+    expect(summary.toFillDaily).toBe(233.34)
   })
 
   it('toFillDaily uses totalCap remaining when it is the binding constraint', () => {
     // totalUsedBefore = 3920, 100 baht → subsidy 60, totalRemaining = 4000-3920-60 = 20
-    // min(140, 940, 20) = 20, ceil(20 / 0.6) = ceil(33.33) = 34
+    // min(140, 940, 20) = 20, rounded up to the next satang.
     const entries = [makeEntry(100, '2026-05-30T10:00:00.000Z')]
     const summary = getDailySummary(entries, scheme, 0, 3920)
-    expect(summary.toFillDaily).toBe(34)
+    expect(summary.toFillDaily).toBe(33.34)
     expect(summary.remainingTotal).toBe(20)
   })
 

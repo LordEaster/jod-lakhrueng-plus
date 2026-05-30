@@ -8,6 +8,7 @@ import { useSchemeSetting } from '../hooks/useSettings'
 import { useDailySummary } from '../hooks/useDailySummary'
 import { calculateDailySubsidy, getMonthlySummary } from '../logic/calculateSubsidy'
 import { formatAmount, thisMonthKey, todayKey } from '../logic/formatThai'
+import { parseMoneyInput, sanitizeMoneyInput } from '../logic/money'
 import { CATEGORY_LABELS, type PurchaseCategory } from '../types/purchase'
 import AmountShortcutGrid from '../components/AmountShortcutGrid'
 import QuickRepeatButtons from '../components/QuickRepeatButtons'
@@ -29,12 +30,11 @@ export default function AddPurchasePage() {
   const [savedFeedback, setSavedFeedback] = useState<SavedFeedback>(null)
   const [showLargeConfirm, setShowLargeConfirm] = useState(false)
 
-  const numAmount = parseFloat(amount) || 0
+  const numAmount = parseMoneyInput(amount) ?? 0
   const toFillToday = dailySummary?.toFillDaily ?? 0
 
   function handleAmountInput(value: string) {
-    const cleaned = value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1')
-    setAmount(cleaned)
+    setAmount(sanitizeMoneyInput(value))
     setError('')
   }
 
@@ -147,8 +147,9 @@ export default function AddPurchasePage() {
           </label>
           <input
             id="amount"
-            type="number"
+            type="text"
             inputMode="decimal"
+            pattern="[0-9]*[.]?[0-9]{0,2}"
             value={amount}
             onChange={(e) => handleAmountInput(e.target.value)}
             placeholder="0"
