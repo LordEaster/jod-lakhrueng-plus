@@ -29,14 +29,14 @@ export default function PurchaseListItem({ entry, onEdit, onDelete }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => onEdit(entry)}
-              className="text-blue-600 text-sm font-medium px-3 py-1 rounded-lg border border-blue-200 min-h-[36px]"
+              className="text-green-600 text-sm font-medium px-3 py-1 rounded-lg border border-green-200 min-h-[36px] active:scale-[0.97] transition-transform duration-100"
               aria-label={`แก้ไข ${entry.title ?? 'รายการ'}`}
             >
               แก้ไข
             </button>
             <button
               onClick={() => onDelete(entry)}
-              className="text-red-500 text-sm font-medium px-3 py-1 rounded-lg border border-red-200 min-h-[36px]"
+              className="text-red-500 text-sm font-medium px-3 py-1 rounded-lg border border-red-200 min-h-[36px] active:scale-[0.97] transition-transform duration-100"
               aria-label={`ลบ ${entry.title ?? 'รายการ'}`}
             >
               ลบ

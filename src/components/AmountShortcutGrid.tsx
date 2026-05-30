@@ -16,7 +16,7 @@ export default function AmountShortcutGrid({ toFillToday, onSelect }: Props) {
           <button
             key={amount}
             onClick={() => onSelect(amount)}
-            className="bg-gray-100 hover:bg-blue-50 active:bg-blue-100 text-gray-800 font-semibold rounded-xl py-3 text-base min-h-[48px] transition-colors"
+            className="bg-gray-100 hover:bg-green-50 text-gray-800 font-semibold rounded-xl py-3 text-base min-h-[48px] transition-colors active:scale-[0.97] transition-transform duration-100"
           >
             {formatAmount(amount)}
           </button>
@@ -24,7 +24,7 @@ export default function AmountShortcutGrid({ toFillToday, onSelect }: Props) {
         {toFillToday > 0 && (
           <button
             onClick={() => onSelect(toFillToday)}
-            className="col-span-4 bg-green-50 hover:bg-green-100 active:bg-green-200 text-green-800 font-semibold rounded-xl py-3 text-base min-h-[48px] border border-green-200 transition-colors"
+            className="col-span-4 bg-green-50 hover:bg-green-100 text-green-800 font-semibold rounded-xl py-3 text-base min-h-[48px] border border-green-200 transition-colors active:scale-[0.97] transition-transform duration-100"
           >
             เต็มสิทธิวันนี้ ({formatAmount(toFillToday)} บาท)
           </button>

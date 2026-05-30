@@ -29,7 +29,7 @@ export default function MonthSummaryCard({ summary, monthlyCap, month }: Props) 
 
       <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
         <div
-          className={`h-2 rounded-full ${isLow ? 'bg-orange-400' : 'bg-blue-500'}`}
+          className={`h-2 rounded-full ${isLow ? 'bg-amber-400' : 'bg-green-500'}`}
           style={{ width: `${pct}%` }}
           role="progressbar"
           aria-valuenow={summary.totalSubsidy}

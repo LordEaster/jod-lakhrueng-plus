@@ -1,13 +1,13 @@
 import { ArrowLeft, CircleCheckBig } from 'lucide-react'
 import { useRef, useState, type KeyboardEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { addPurchase } from '../db/purchaseRepository'
 import { useSchemeSetting } from '../hooks/useSettings'
 import { useDailySummary } from '../hooks/useDailySummary'
 import { calculateDailySubsidy, getMonthlySummary } from '../logic/calculateSubsidy'
-import { formatAmount, thisMonthKey, todayKey } from '../logic/formatThai'
+import { formatAmount, formatThaiDate, dateToMonth, todayKey } from '../logic/formatThai'
 import { parseMoneyInput, sanitizeMoneyInput } from '../logic/money'
 import { CATEGORY_LABELS, type PurchaseCategory } from '../types/purchase'
 import AmountShortcutGrid from '../components/AmountShortcutGrid'
@@ -19,13 +19,15 @@ type SavedFeedback = { subsidyAmount: number; userPaidAmount: number } | null
 
 export default function AddPurchasePage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const scheme = useSchemeSetting()
   const dailySummary = useDailySummary(scheme)
   const recentEntries = useLiveQuery(() => db.purchases.orderBy('createdAt').reverse().limit(3).toArray(), [])
 
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState(() => searchParams.get('amount') ?? '')
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<PurchaseCategory | ''>('')
+  const [selectedDate, setSelectedDate] = useState(todayKey)
   const [error, setError] = useState('')
   const [savedFeedback, setSavedFeedback] = useState<SavedFeedback>(null)
   const [showLargeConfirm, setShowLargeConfirm] = useState(false)
@@ -59,26 +61,25 @@ export default function AddPurchasePage() {
   }
 
   async function doSave() {
-    const thisMonth = thisMonthKey()
-    const today = todayKey()
+    const selectedMonth = dateToMonth(selectedDate)
 
     const [allMonthEntries, allPriorEntries] = await Promise.all([
-      db.purchases.where('month').equals(thisMonth).toArray(),
+      db.purchases.where('month').equals(selectedMonth).toArray(),
       scheme.startDate
-        ? db.purchases.where('month').below(thisMonth).toArray()
+        ? db.purchases.where('month').below(selectedMonth).toArray()
         : Promise.resolve([]),
     ])
 
     const { totalSubsidy: prevMonthsTotal } = getMonthlySummary(allPriorEntries, scheme, 0)
-    const priorDayEntries = allMonthEntries.filter((e) => e.date < today)
+    const priorDayEntries = allMonthEntries.filter((e) => e.date < selectedDate)
     const { totalSubsidy: monthUsedBefore } = getMonthlySummary(priorDayEntries, scheme, prevMonthsTotal)
     const totalUsedBefore = prevMonthsTotal + monthUsedBefore
 
-    const dayEntriesSoFar = await db.purchases.where('date').equals(today).toArray()
+    const dayEntriesSoFar = await db.purchases.where('date').equals(selectedDate).toArray()
     const tempEntry = {
       id: 'preview',
-      date: today,
-      month: thisMonth,
+      date: selectedDate,
+      month: selectedMonth,
       amount: numAmount,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -93,6 +94,7 @@ export default function AddPurchasePage() {
       amount: numAmount,
       title: title.trim() || undefined,
       category: category || undefined,
+      date: selectedDate,
     })
 
     setSavedFeedback({ subsidyAmount, userPaidAmount })
@@ -113,20 +115,32 @@ export default function AddPurchasePage() {
   if (savedFeedback) {
     return (
       <div className="max-w-md mx-auto px-4 pt-12 flex flex-col items-center text-center">
-        <CircleCheckBig className="mb-4 h-16 w-16 text-green-600" aria-hidden="true" strokeWidth={1.8} />
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">บันทึกแล้ว</h1>
-        <p className="text-xl text-gray-600 mb-1">รัฐช่วย <span className="font-bold text-green-600">{formatAmount(savedFeedback.subsidyAmount)} บาท</span></p>
-        <p className="text-xl text-gray-600 mb-8">คุณจ่ายเอง <span className="font-bold text-gray-800">{formatAmount(savedFeedback.userPaidAmount)} บาท</span></p>
+        <CircleCheckBig className="mb-4 h-16 w-16 text-green-600 animate-[bounce_0.4s_ease-out_1]" aria-hidden="true" strokeWidth={1.8} />
+        <h1 className="text-3xl font-bold text-green-700 mb-5">บันทึกแล้ว</h1>
+        <div className="w-full bg-green-50 border border-green-200 rounded-2xl p-5 mb-8">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-500 mb-1">รัฐช่วย</p>
+              <p className="text-2xl font-bold text-green-700">{formatAmount(savedFeedback.subsidyAmount)}</p>
+              <p className="text-sm text-gray-400">บาท</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">คุณจ่ายเอง</p>
+              <p className="text-2xl font-bold text-gray-800">{formatAmount(savedFeedback.userPaidAmount)}</p>
+              <p className="text-sm text-gray-400">บาท</p>
+            </div>
+          </div>
+        </div>
         <div className="flex gap-3 w-full">
           <button
-            onClick={() => { setSavedFeedback(null); setAmount(''); setTitle(''); setCategory('') }}
-            className="flex-1 border-2 border-blue-600 text-blue-600 font-semibold text-lg py-4 rounded-2xl min-h-[56px]"
+            onClick={() => { setSavedFeedback(null); setAmount(''); setTitle(''); setCategory(''); setSelectedDate(todayKey()) }}
+            className="flex-1 border-2 border-green-600 text-green-600 font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.97] transition-transform duration-100"
           >
             จดเพิ่มอีก
           </button>
           <button
             onClick={() => navigate('/')}
-            className="flex-1 bg-blue-600 text-white font-semibold text-lg py-4 rounded-2xl min-h-[56px]"
+            className="flex-1 bg-green-600 text-white font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.95] transition-transform duration-100"
           >
             กลับหน้าแรก
           </button>
@@ -157,14 +171,14 @@ export default function AddPurchasePage() {
           <input
             id="amount"
             type="text"
-            inputMode="decimal"
+            inputMode="numeric"
             pattern="[0-9]*[.]?[0-9]{0,2}"
             value={amount}
             onChange={(e) => handleAmountInput(e.target.value)}
             onKeyDown={(e) => focusOnEnter(e, titleInputRef.current)}
             placeholder="0"
             autoFocus
-            className="w-full text-4xl font-bold text-gray-800 border-2 border-gray-300 rounded-2xl px-4 py-4 focus:border-blue-500 focus:outline-none text-center"
+            className="w-full text-4xl font-bold text-gray-800 border-2 border-gray-300 rounded-xl px-4 py-4 focus:border-green-500 focus:outline-none text-center"
             aria-describedby={error ? 'amount-error' : undefined}
           />
           {error && <p id="amount-error" className="text-red-500 text-base mt-1">{error}</p>}
@@ -189,7 +203,7 @@ export default function AddPurchasePage() {
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={(e) => focusOnEnter(e, categorySelectRef.current)}
             placeholder="เช่น ข้าวแกง กาแฟ"
-            className="w-full text-lg border-2 border-gray-200 rounded-2xl px-4 py-3 focus:border-blue-500 focus:outline-none"
+            className="w-full text-lg border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:outline-none"
           />
         </div>
 
@@ -204,7 +218,7 @@ export default function AddPurchasePage() {
             value={category}
             onChange={(e) => setCategory(e.target.value as PurchaseCategory | '')}
             onKeyDown={(e) => focusOnEnter(e, saveButtonRef.current)}
-            className="w-full text-lg border-2 border-gray-200 rounded-2xl px-4 py-3 focus:border-blue-500 focus:outline-none bg-white"
+            className="w-full text-lg border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:outline-none bg-white"
           >
             <option value="">-- เลือกหมวดหมู่ --</option>
             {(Object.entries(CATEGORY_LABELS) as [PurchaseCategory, string][]).map(([key, label]) => (
@@ -213,18 +227,42 @@ export default function AddPurchasePage() {
           </select>
         </div>
 
+        {/* Date (backdate) */}
+        <div>
+          <label htmlFor="entry-date" className="text-base text-gray-500 mb-1 block">
+            วันที่ซื้อ
+            {selectedDate !== todayKey() && (
+              <span className="ml-2 text-amber-600 text-sm font-medium">จดย้อนหลัง</span>
+            )}
+          </label>
+          <input
+            id="entry-date"
+            type="date"
+            value={selectedDate}
+            max={todayKey()}
+            min={scheme.startDate ?? '2026-06-01'}
+            onChange={(e) => setSelectedDate(e.target.value || todayKey())}
+            className="w-full text-lg border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:outline-none bg-white"
+          />
+          {selectedDate !== todayKey() && (
+            <p className="text-sm text-amber-600 mt-1">
+              กำลังจดรายการของวัน{formatThaiDate(selectedDate)}
+            </p>
+          )}
+        </div>
+
         {/* Actions */}
-        <div className="flex gap-3 pb-6">
+        <div className="flex gap-3 pb-28">
           <button
             onClick={() => navigate(-1)}
-            className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold text-lg py-4 rounded-2xl min-h-[56px]"
+            className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.97] transition-transform duration-100"
           >
             ยกเลิก
           </button>
           <button
             ref={saveButtonRef}
             onClick={handleSave}
-            className="flex-1 bg-blue-600 text-white font-semibold text-lg py-4 rounded-2xl min-h-[56px] shadow-md"
+            className="flex-1 bg-green-600 text-white font-semibold text-lg py-4 rounded-xl min-h-[56px] shadow-md active:scale-[0.95] transition-transform duration-100"
           >
             บันทึก
           </button>

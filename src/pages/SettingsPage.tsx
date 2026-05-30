@@ -148,7 +148,7 @@ export default function SettingsPage() {
     setShowClearConfirm2(false)
   }
 
-  const inputClass = 'w-full text-lg border-2 border-gray-200 rounded-2xl px-4 py-3 focus:border-blue-500 focus:outline-none'
+  const inputClass = 'w-full text-lg border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:outline-none'
   const labelClass = 'text-base text-gray-500 block mb-1'
   const sectionClass = 'bg-white rounded-2xl p-5 border border-gray-200 space-y-4'
 
@@ -159,7 +159,7 @@ export default function SettingsPage() {
         <p className="text-sm text-gray-400 mt-1">ถ้ารัฐเปลี่ยนกติกา คุณสามารถแก้ตัวเลขตรงนี้ได้เอง</p>
       </header>
 
-      <div className="px-4 space-y-5 pb-8">
+      <div className="px-4 space-y-5 pb-28">
         <div className={sectionClass}>
           <h2 className="text-xl font-semibold text-gray-700">กติกาโครงการ</h2>
 
@@ -207,10 +207,10 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button onClick={handleResetScheme} className="flex-1 border-2 border-gray-300 text-gray-600 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+            <button onClick={handleResetScheme} className="flex-1 border-2 border-gray-300 text-gray-600 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
               คืนค่าเริ่มต้น
             </button>
-            <button onClick={handleSaveScheme} className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white text-base font-semibold py-3 rounded-2xl min-h-[48px]">
+            <button onClick={handleSaveScheme} className="flex-1 inline-flex items-center justify-center gap-2 bg-green-600 text-white text-base font-semibold py-3 rounded-xl min-h-[48px] active:scale-[0.95] transition-transform duration-100">
               {saved && <Check className="h-5 w-5" aria-hidden="true" />}
               {saved ? 'บันทึกแล้ว' : 'บันทึก'}
             </button>
@@ -224,13 +224,13 @@ export default function SettingsPage() {
               <button
                 key={mode}
                 onClick={() => setFontSizeMode(mode)}
-                className={`flex-1 py-3 rounded-2xl border-2 text-base font-medium min-h-[48px] ${fontSizeMode === mode ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-600'}`}
+                className={`flex-1 py-3 rounded-xl border-2 text-base font-medium min-h-[48px] active:scale-[0.97] transition-transform duration-100 ${fontSizeMode === mode ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600'}`}
               >
                 {mode === 'normal' ? 'ปกติ' : mode === 'large' ? 'ใหญ่' : 'ใหญ่มาก'}
               </button>
             ))}
           </div>
-          <button onClick={handleSaveFontSize} className="w-full bg-blue-600 text-white text-base font-semibold py-3 rounded-2xl min-h-[48px]">
+          <button onClick={handleSaveFontSize} className="w-full bg-green-600 text-white text-base font-semibold py-3 rounded-xl min-h-[48px] active:scale-[0.95] transition-transform duration-100">
             บันทึกขนาดตัวอักษร
           </button>
         </div>
@@ -239,41 +239,41 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold text-gray-700">ข้อมูล</h2>
           <p className="text-base text-gray-500">ข้อมูลทั้งหมดเก็บอยู่ในเครื่องนี้เท่านั้น แนะนำสำรองข้อมูลเป็นประจำ</p>
 
-          <button onClick={handleExportJson} className="w-full inline-flex items-center justify-center gap-2 border-2 border-blue-200 text-blue-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+          <button onClick={handleExportJson} className="w-full inline-flex items-center justify-center gap-2 border-2 border-green-200 text-green-700 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
             <Download className="h-5 w-5" aria-hidden="true" />
             สำรองข้อมูล (JSON)
           </button>
 
           <div className="grid grid-cols-2 gap-3">
-            <button onClick={handleExportXlsx} className="inline-flex items-center justify-center gap-2 border-2 border-emerald-200 text-emerald-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+            <button onClick={handleExportXlsx} className="inline-flex items-center justify-center gap-2 border-2 border-green-200 text-green-700 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
               <Download className="h-5 w-5" aria-hidden="true" />
               Export Excel
             </button>
-            <button onClick={handleExportCsv} className="inline-flex items-center justify-center gap-2 border-2 border-emerald-200 text-emerald-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+            <button onClick={handleExportCsv} className="inline-flex items-center justify-center gap-2 border-2 border-green-200 text-green-700 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
               <Download className="h-5 w-5" aria-hidden="true" />
               Export CSV
             </button>
           </div>
           <p className="text-sm text-gray-400">Excel/CSV จะส่งออกเฉพาะรายการซื้อ เหมาะสำหรับนำไปจดรายรับรายจ่ายต่อ</p>
 
-          <button onClick={() => importRef.current?.click()} className="w-full inline-flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+          <button onClick={() => importRef.current?.click()} className="w-full inline-flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-700 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
             <Upload className="h-5 w-5" aria-hidden="true" />
             นำเข้า JSON / Excel / CSV
           </button>
           <input ref={importRef} type="file" accept=".json,.xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={handleImport} className="hidden" aria-label="นำเข้าไฟล์ข้อมูล" />
 
-          <button onClick={() => setShowClearConfirm(true)} className="w-full inline-flex items-center justify-center gap-2 border-2 border-red-200 text-red-600 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+          <button onClick={() => setShowClearConfirm(true)} className="w-full inline-flex items-center justify-center gap-2 border-2 border-red-200 text-red-600 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
             <Trash2 className="h-5 w-5" aria-hidden="true" />
             ล้างข้อมูลทั้งหมด
           </button>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate('/privacy')} className="inline-flex items-center justify-center gap-1 text-center text-blue-600 text-base py-3">
+          <button onClick={() => navigate('/privacy')} className="inline-flex items-center justify-center gap-1 text-center text-green-600 text-base py-3 active:scale-[0.97] transition-transform duration-100">
             นโยบายความเป็นส่วนตัว
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
-          <button onClick={() => navigate('/terms')} className="inline-flex items-center justify-center gap-1 text-center text-blue-600 text-base py-3">
+          <button onClick={() => navigate('/terms')} className="inline-flex items-center justify-center gap-1 text-center text-green-600 text-base py-3 active:scale-[0.97] transition-transform duration-100">
             เงื่อนไขการใช้
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
@@ -290,6 +290,7 @@ export default function SettingsPage() {
           subMessage="รายการซื้อทั้งหมดจะถูกลบถาวร ไม่สามารถกู้คืนได้"
           confirmLabel="ล้างข้อมูล"
           cancelLabel="ยกเลิก"
+          confirmVariant="danger"
           onConfirm={() => { setShowClearConfirm(false); setShowClearConfirm2(true) }}
           onCancel={() => setShowClearConfirm(false)}
         />
@@ -300,6 +301,7 @@ export default function SettingsPage() {
           subMessage="ข้อมูลทั้งหมดจะหายไปถาวร"
           confirmLabel="ยืนยัน ลบเลย"
           cancelLabel="ยกเลิก"
+          confirmVariant="danger"
           onConfirm={handleClearAll}
           onCancel={() => setShowClearConfirm2(false)}
         />

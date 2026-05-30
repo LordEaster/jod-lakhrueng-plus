@@ -3,6 +3,7 @@ interface Props {
   subMessage?: string
   confirmLabel?: string
   cancelLabel?: string
+  confirmVariant?: 'primary' | 'danger'
   onConfirm: () => void
   onCancel: () => void
 }
@@ -12,6 +13,7 @@ export default function ConfirmDialog({
   subMessage,
   confirmLabel = 'ยืนยัน',
   cancelLabel = 'ยกเลิก',
+  confirmVariant = 'primary',
   onConfirm,
   onCancel,
 }: Props) {
@@ -28,13 +30,13 @@ export default function ConfirmDialog({
         <div className="flex gap-3 mt-6">
           <button
             onClick={onCancel}
-            className="flex-1 py-4 rounded-2xl border-2 border-gray-300 text-gray-700 text-lg font-medium min-h-[56px]"
+            className="flex-1 py-4 rounded-xl border-2 border-gray-300 text-gray-700 text-lg font-medium min-h-[56px] active:scale-[0.97] transition-transform duration-100"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className="flex-1 py-4 rounded-2xl bg-blue-600 text-white text-lg font-semibold min-h-[56px]"
+            className={`flex-1 py-4 rounded-xl text-white text-lg font-semibold min-h-[56px] active:scale-[0.95] transition-transform duration-100 ${confirmVariant === 'danger' ? 'bg-red-600' : 'bg-green-600'}`}
           >
             {confirmLabel}
           </button>

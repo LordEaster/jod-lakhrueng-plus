@@ -1,9 +1,10 @@
-export type PurchaseCategory = 'food' | 'drink' | 'household' | 'medicine' | 'other'
+export type PurchaseCategory = 'food' | 'drink' | 'household' | 'transportation' | 'medicine' | 'other'
 
 export const CATEGORY_LABELS: Record<PurchaseCategory, string> = {
   food: 'อาหาร',
   drink: 'เครื่องดื่ม',
   household: 'ของใช้ในบ้าน',
+  transportation: 'ค่าเดินทาง',
   medicine: 'ยาและสุขภาพ',
   other: 'อื่นๆ',
 }

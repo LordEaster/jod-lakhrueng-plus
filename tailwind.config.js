@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Sarabun', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"Noto Sans Thai"', '"Segoe UI"', 'sans-serif'],
       },
     },
   },

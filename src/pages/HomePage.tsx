@@ -9,6 +9,7 @@ import { db } from '../db/db'
 import { saveAppSetting } from '../db/settingRepository'
 import TodaySummaryCard from '../components/TodaySummaryCard'
 import MonthSummaryCard from '../components/MonthSummaryCard'
+import CalcWidget from '../components/CalcWidget'
 import EmptyState from '../components/EmptyState'
 import CampaignLockScreen from '../components/CampaignLockScreen'
 import InstallHint from '../components/InstallHint'
@@ -71,16 +72,18 @@ export default function HomePage() {
 
       {appSetting.showInstallHint && <InstallHint onDismiss={dismissInstallHint} />}
 
-      <div className="px-4 space-y-4">
+      <div className="px-4 space-y-4 pb-28">
         {dailySummary ? (
           <TodaySummaryCard summary={dailySummary} dailyCap={scheme.dailyCap} />
         ) : (
           <SummaryCardSkeleton variant="today" />
         )}
 
+        {dailySummary && <CalcWidget dailySummary={dailySummary} scheme={scheme} />}
+
         <button
           onClick={() => navigate('/add')}
-          className="inline-flex w-full items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-2xl font-bold py-5 rounded-2xl min-h-[72px] shadow-lg transition-colors"
+          className="inline-flex w-full items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white text-2xl font-bold py-5 rounded-2xl min-h-[72px] shadow-lg transition-colors active:scale-[0.95] transition-transform duration-100"
           aria-label="จดรายการซื้อใหม่"
         >
           <Plus className="h-7 w-7" aria-hidden="true" strokeWidth={2.5} />
@@ -116,7 +119,7 @@ export default function HomePage() {
               ))}
               <button
                 onClick={() => navigate('/history')}
-                className="inline-flex w-full items-center justify-center gap-1 text-center text-blue-600 font-medium py-3 text-lg"
+                className="inline-flex w-full items-center justify-center gap-1 text-center text-green-600 font-medium py-3 text-lg active:scale-[0.97] transition-transform duration-100"
               >
                 ดูประวัติทั้งหมด
                 <ArrowRight className="h-5 w-5" aria-hidden="true" />

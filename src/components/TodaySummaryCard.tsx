@@ -7,9 +7,9 @@ interface Props {
 }
 
 function getStatus(remaining: number, cap: number) {
-  if (remaining === 0) return { color: 'bg-blue-50 border-blue-200', textColor: 'text-blue-700', label: 'วันนี้เต็มสิทธิแล้ว' }
-  if (remaining / cap < 0.5) return { color: 'bg-yellow-50 border-yellow-200', textColor: 'text-yellow-700', label: 'ใกล้เต็มวันนี้แล้ว' }
-  return { color: 'bg-green-50 border-green-200', textColor: 'text-green-700', label: 'ยังใช้ได้อีก' }
+  if (remaining === 0) return { color: 'bg-emerald-50 border-emerald-300', textColor: 'text-emerald-700', barColor: 'bg-emerald-500', label: 'ใช้เต็มสิทธิแล้ว' }
+  if (remaining / cap < 0.5) return { color: 'bg-amber-50 border-amber-200', textColor: 'text-amber-700', barColor: 'bg-amber-400', label: 'ใกล้เต็มสิทธิ' }
+  return { color: 'bg-green-50 border-green-200', textColor: 'text-green-700', barColor: 'bg-green-500', label: 'ยังใช้ได้อีก' }
 }
 
 export default function TodaySummaryCard({ summary, dailyCap }: Props) {
@@ -19,7 +19,7 @@ export default function TodaySummaryCard({ summary, dailyCap }: Props) {
     <div className={`rounded-2xl border-2 p-5 ${status.color}`}>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-xl font-semibold text-gray-700">วันนี้</h2>
-        <span className={`text-base font-medium px-3 py-1 rounded-full ${status.textColor} bg-white`}>
+        <span className={`text-sm font-semibold px-3 py-1 rounded-full ${status.textColor} bg-white`}>
           {status.label}
         </span>
       </div>
@@ -34,7 +34,7 @@ export default function TodaySummaryCard({ summary, dailyCap }: Props) {
 
       <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
         <div
-          className={`h-3 rounded-full transition-all ${summary.remainingDaily === 0 ? 'bg-blue-500' : 'bg-green-500'}`}
+          className={`h-3 rounded-full transition-all ${status.barColor}`}
           style={{ width: `${Math.min(100, (summary.totalSubsidy / dailyCap) * 100)}%` }}
           role="progressbar"
           aria-valuenow={summary.totalSubsidy}
