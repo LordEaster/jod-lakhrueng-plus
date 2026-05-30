@@ -268,12 +268,12 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate('/privacy')} className="inline-flex items-center justify-center gap-1 text-center text-green-600 text-base py-3 active:scale-[0.97] transition-transform duration-100">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button onClick={() => navigate('/privacy')} className="inline-flex w-full items-center justify-center gap-1 text-center text-green-600 text-base py-3 active:scale-[0.97] transition-transform duration-100">
             นโยบายความเป็นส่วนตัว
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
-          <button onClick={() => navigate('/terms')} className="inline-flex items-center justify-center gap-1 text-center text-green-600 text-base py-3 active:scale-[0.97] transition-transform duration-100">
+          <button onClick={() => navigate('/terms')} className="inline-flex w-full items-center justify-center gap-1 text-center text-green-600 text-base py-3 active:scale-[0.97] transition-transform duration-100">
             เงื่อนไขการใช้
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>

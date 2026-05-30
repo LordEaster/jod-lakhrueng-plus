@@ -4,6 +4,7 @@ import AppPreferences from './components/AppPreferences'
 import BottomNav from './components/BottomNav'
 import HomePage from './pages/HomePage'
 import { PageSkeleton } from './components/Skeleton'
+import ScrollToTop from './components/ScrollToTop'
 
 const AddPurchasePage = lazy(() => import('./pages/AddPurchasePage'))
 const HistoryPage = lazy(() => import('./pages/HistoryPage'))
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AppPreferences />
+      <ScrollToTop />
       <div className="min-h-screen bg-gray-50 pb-20">
         <Suspense fallback={<PageSkeleton />}>
           <Routes>
