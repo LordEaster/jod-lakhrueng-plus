@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import AppPreferences from './components/AppPreferences'
 import BottomNav from './components/BottomNav'
 import HomePage from './pages/HomePage'
 import AddPurchasePage from './pages/AddPurchasePage'
@@ -11,6 +12,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'))
 export default function App() {
   return (
     <BrowserRouter>
+      <AppPreferences />
       <div className="min-h-screen bg-gray-50 pb-20">
         <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500">กำลังโหลด...</div>}>
           <Routes>

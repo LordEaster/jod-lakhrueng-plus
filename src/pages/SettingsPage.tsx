@@ -222,6 +222,10 @@ export default function SettingsPage() {
           นโยบายความเป็นส่วนตัว
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
+
+        <p className="text-center text-xs text-gray-400">
+          เวอร์ชัน {__APP_VERSION__} ({__APP_BUILD_ID__.slice(0, 7)})
+        </p>
       </div>
 
       {showClearConfirm && (
