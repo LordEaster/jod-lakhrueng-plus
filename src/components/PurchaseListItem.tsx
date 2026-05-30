@@ -17,7 +17,7 @@ export default function PurchaseListItem({ entry, onEdit, onDelete }: Props) {
             {entry.title ?? 'ไม่ระบุชื่อ'}
           </p>
           {entry.category && (
-            <p className="text-sm text-gray-400">{CATEGORY_LABELS[entry.category]}</p>
+            <p className="text-sm text-gray-500">{CATEGORY_LABELS[entry.category]}</p>
           )}
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-gray-500">
             <span>รัฐช่วย <span className="font-medium text-green-600">{formatAmount(entry.subsidyAmount)} บาท</span></span>

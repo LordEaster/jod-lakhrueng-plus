@@ -52,12 +52,12 @@ export default function CalcWidget({ dailySummary, scheme }: Props) {
             <div className="bg-white rounded-xl p-3 text-center">
               <p className="text-xs text-gray-500 mb-1">รัฐช่วย</p>
               <p className="text-xl font-bold text-green-700">{formatAmount(actualSubsidy)}</p>
-              <p className="text-xs text-gray-400">บาท</p>
+              <p className="text-xs text-gray-500">บาท</p>
             </div>
             <div className="bg-white rounded-xl p-3 text-center">
               <p className="text-xs text-gray-500 mb-1">คุณจ่ายเอง</p>
               <p className="text-xl font-bold text-gray-800">{formatAmount(userPays)}</p>
-              <p className="text-xs text-gray-400">บาท</p>
+              <p className="text-xs text-gray-500">บาท</p>
             </div>
           </div>
 

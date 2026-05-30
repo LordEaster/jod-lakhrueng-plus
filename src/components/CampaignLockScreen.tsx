@@ -38,7 +38,7 @@ export default function CampaignLockScreen({ status, startDate, endDate }: Props
           </button>
         </>
       )}
-      <p className="mt-6 text-base text-gray-400">
+      <p className="mt-6 text-base text-gray-500">
         สามารถแก้ไขวันที่โครงการได้ที่หน้าตั้งค่า
       </p>
     </div>

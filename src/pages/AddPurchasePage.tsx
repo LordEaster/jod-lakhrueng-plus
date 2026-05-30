@@ -123,12 +123,12 @@ export default function AddPurchasePage() {
             <div>
               <p className="text-sm text-gray-500 mb-1">รัฐช่วย</p>
               <p className="text-2xl font-bold text-green-700">{formatAmount(savedFeedback.subsidyAmount)}</p>
-              <p className="text-sm text-gray-400">บาท</p>
+              <p className="text-sm text-gray-500">บาท</p>
             </div>
             <div>
               <p className="text-sm text-gray-500 mb-1">คุณจ่ายเอง</p>
               <p className="text-2xl font-bold text-gray-800">{formatAmount(savedFeedback.userPaidAmount)}</p>
-              <p className="text-sm text-gray-400">บาท</p>
+              <p className="text-sm text-gray-500">บาท</p>
             </div>
           </div>
         </div>

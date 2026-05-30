@@ -16,14 +16,14 @@ export default function MonthSummaryCard({ summary, monthlyCap, month }: Props) 
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-xl font-semibold text-gray-700">เดือนนี้</h2>
-        <span className="text-base text-gray-400">{formatThaiMonth(displayMonth)}</span>
+        <span className="text-base text-gray-500">{formatThaiMonth(displayMonth)}</span>
       </div>
 
       <div className="mb-3">
         <p className="text-gray-500 text-base">ใช้สิทธิไปแล้ว</p>
         <p className="text-4xl font-bold text-gray-800 leading-tight">
           {formatAmount(summary.totalSubsidy)}
-          <span className="text-xl font-normal text-gray-400"> / {formatAmount(monthlyCap)} บาท</span>
+          <span className="text-xl font-normal text-gray-500"> / {formatAmount(monthlyCap)} บาท</span>
         </p>
       </div>
 

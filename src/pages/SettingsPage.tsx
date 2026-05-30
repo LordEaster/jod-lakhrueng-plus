@@ -156,7 +156,7 @@ export default function SettingsPage() {
     <div className="max-w-md mx-auto">
       <header className="px-4 pt-6 pb-4">
         <h1 className="text-2xl font-bold text-gray-800">ตั้งค่า</h1>
-        <p className="text-sm text-gray-400 mt-1">ถ้ารัฐเปลี่ยนกติกา คุณสามารถแก้ตัวเลขตรงนี้ได้เอง</p>
+        <p className="text-sm text-gray-500 mt-1">ถ้ารัฐเปลี่ยนกติกา คุณสามารถแก้ตัวเลขตรงนี้ได้เอง</p>
       </header>
 
       <div className="px-4 space-y-5 pb-28">
@@ -167,7 +167,7 @@ export default function SettingsPage() {
             <label htmlFor="subsidyRate" className={labelClass}>รัฐช่วยกี่เปอร์เซ็นต์</label>
             <div className="relative">
               <input id="subsidyRate" type="number" value={subsidyRate} onChange={(e) => setSubsidyRate(e.target.value)} className={inputClass} />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">%</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">%</span>
             </div>
           </div>
 
@@ -175,7 +175,7 @@ export default function SettingsPage() {
             <label htmlFor="dailyCap" className={labelClass}>รัฐช่วยสูงสุดต่อวัน</label>
             <div className="relative">
               <input id="dailyCap" type="number" value={dailyCap} onChange={(e) => setDailyCap(e.target.value)} className={inputClass} />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">บาท</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">บาท</span>
             </div>
           </div>
 
@@ -183,7 +183,7 @@ export default function SettingsPage() {
             <label htmlFor="monthlyCap" className={labelClass}>รัฐช่วยสูงสุดต่อเดือน</label>
             <div className="relative">
               <input id="monthlyCap" type="number" value={monthlyCap} onChange={(e) => setMonthlyCap(e.target.value)} className={inputClass} />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">บาท</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">บาท</span>
             </div>
           </div>
 
@@ -191,9 +191,9 @@ export default function SettingsPage() {
             <label htmlFor="totalCap" className={labelClass}>วงเงินรวมตลอดโครงการ</label>
             <div className="relative">
               <input id="totalCap" type="number" value={totalCap} onChange={(e) => setTotalCap(e.target.value)} className={inputClass} />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">บาท</span>
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">บาท</span>
             </div>
-            <p className="text-sm text-gray-400 mt-1">ไทยช่วยไทย พลัส: 4,000 บาท ตลอดโครงการ</p>
+            <p className="text-sm text-gray-500 mt-1">ไทยช่วยไทย พลัส: 4,000 บาท ตลอดโครงการ</p>
           </div>
 
           <div>
@@ -254,7 +254,7 @@ export default function SettingsPage() {
               Export CSV
             </button>
           </div>
-          <p className="text-sm text-gray-400">Excel/CSV จะส่งออกเฉพาะรายการซื้อ เหมาะสำหรับนำไปจดรายรับรายจ่ายต่อ</p>
+          <p className="text-sm text-gray-500">Excel/CSV จะส่งออกเฉพาะรายการซื้อ เหมาะสำหรับนำไปจดรายรับรายจ่ายต่อ</p>
 
           <button onClick={() => importRef.current?.click()} className="w-full inline-flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-700 text-base font-medium py-3 rounded-xl min-h-[48px] active:scale-[0.97] transition-transform duration-100">
             <Upload className="h-5 w-5" aria-hidden="true" />
@@ -279,7 +279,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <p className="text-center text-xs text-gray-400">
+        <p className="text-center text-xs text-gray-500">
           เวอร์ชัน {__APP_VERSION__} ({__APP_BUILD_ID__.slice(0, 7)})
         </p>
       </div>

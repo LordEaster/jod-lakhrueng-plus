@@ -11,7 +11,7 @@ export default function EmptyState({ message, subMessage, showAddButton = false 
   return (
     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
       <p className="text-xl text-gray-600 font-medium">{message}</p>
-      {subMessage && <p className="mt-2 text-gray-400 text-lg">{subMessage}</p>}
+      {subMessage && <p className="mt-2 text-gray-500 text-lg">{subMessage}</p>}
       {showAddButton && (
         <button
           onClick={() => navigate('/add')}

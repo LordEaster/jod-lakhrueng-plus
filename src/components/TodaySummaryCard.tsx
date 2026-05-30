@@ -28,7 +28,7 @@ export default function TodaySummaryCard({ summary, dailyCap }: Props) {
         <p className="text-gray-500 text-base">ใช้สิทธิไปแล้ว</p>
         <p className="text-5xl font-bold text-gray-800 leading-tight">
           {formatAmount(summary.totalSubsidy)}
-          <span className="text-2xl font-normal text-gray-400"> / {formatAmount(dailyCap)} บาท</span>
+          <span className="text-2xl font-normal text-gray-500"> / {formatAmount(dailyCap)} บาท</span>
         </p>
       </div>
 
@@ -53,7 +53,7 @@ export default function TodaySummaryCard({ summary, dailyCap }: Props) {
           <div className="bg-white rounded-xl p-3">
             <p className="text-gray-500 text-sm">ซื้อเพิ่มอีกประมาณ</p>
             <p className="text-2xl font-bold text-gray-800">{formatAmount(summary.toFillDaily)} <span className="text-base font-normal">บาท</span></p>
-            <p className="text-xs text-gray-400">จะเต็มสิทธิวันนี้</p>
+            <p className="text-xs text-gray-500">จะเต็มสิทธิวันนี้</p>
           </div>
         )}
         {summary.remainingTotal < dailyCap && summary.remainingTotal > 0 && (

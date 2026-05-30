@@ -14,7 +14,7 @@ export default function TermsPage() {
         </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-800">เงื่อนไขการใช้</h1>
-          <p className="text-sm text-gray-400">มีผลใช้บังคับ: {updatedAt}</p>
+          <p className="text-sm text-gray-500">มีผลใช้บังคับ: {updatedAt}</p>
         </div>
       </header>
 

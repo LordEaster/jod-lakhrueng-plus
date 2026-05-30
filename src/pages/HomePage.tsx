@@ -39,7 +39,7 @@ function HomeHeader() {
           className="mx-auto h-auto w-full max-w-[240px]"
         />
       </picture>
-      <p className="text-sm text-gray-400 mt-2">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส <br/>(ไม่ใช่บริการอย่างเป็นทางการของหน่วยงานรัฐ และไม่ได้รับการรับรอง สนับสนุน หรือมอบหมายจากหน่วยงานใด)</p>
+      <p className="text-sm text-gray-500 mt-2">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส <br/>(ไม่ใช่บริการอย่างเป็นทางการของหน่วยงานรัฐ และไม่ได้รับการรับรอง สนับสนุน หรือมอบหมายจากหน่วยงานใด)</p>
     </header>
   )
 }
@@ -112,7 +112,7 @@ export default function HomePage() {
                 <div key={entry.id} className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex justify-between items-center">
                   <div>
                     <p className="text-lg font-medium text-gray-800">{entry.title ?? 'ไม่ระบุชื่อ'}</p>
-                    <p className="text-sm text-gray-400">{formatThaiDate(entry.date)}</p>
+                    <p className="text-sm text-gray-500">{formatThaiDate(entry.date)}</p>
                   </div>
                   <p className="text-xl font-bold text-gray-800">{formatAmount(entry.amount)} บาท</p>
                 </div>

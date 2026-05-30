@@ -146,7 +146,7 @@ export default function HistoryPage() {
               <div key={date}>
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <h2 className="text-lg font-semibold text-gray-700">{formatThaiDate(date)}</h2>
-                  <span className="text-sm text-gray-400">รวม {formatAmount(dayTotal)} บาท</span>
+                  <span className="text-sm text-gray-500">รวม {formatAmount(dayTotal)} บาท</span>
                 </div>
                 <div className="space-y-2">
                   {dayEntries.map((entry) => (
