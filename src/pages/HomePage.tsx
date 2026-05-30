@@ -12,6 +12,7 @@ import MonthSummaryCard from '../components/MonthSummaryCard'
 import EmptyState from '../components/EmptyState'
 import CampaignLockScreen from '../components/CampaignLockScreen'
 import InstallHint from '../components/InstallHint'
+import { RecentEntriesSkeleton, SummaryCardSkeleton } from '../components/Skeleton'
 import { formatThaiDate, formatAmount } from '../logic/formatThai'
 
 function HomeHeader() {
@@ -74,7 +75,7 @@ export default function HomePage() {
         {dailySummary ? (
           <TodaySummaryCard summary={dailySummary} dailyCap={scheme.dailyCap} />
         ) : (
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 h-40 animate-pulse" />
+          <SummaryCardSkeleton variant="today" />
         )}
 
         <button
@@ -89,13 +90,15 @@ export default function HomePage() {
         {monthlySummary ? (
           <MonthSummaryCard summary={monthlySummary} monthlyCap={scheme.monthlyCap} />
         ) : (
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 h-32 animate-pulse" />
+          <SummaryCardSkeleton variant="month" />
         )}
 
         {/* Recent entries */}
         <div>
           <h2 className="text-lg font-semibold text-gray-700 mb-2">รายการล่าสุด</h2>
-          {!recentEntries || recentEntries.length === 0 ? (
+          {!recentEntries ? (
+            <RecentEntriesSkeleton />
+          ) : recentEntries.length === 0 ? (
             <EmptyState
               message="วันนี้ยังไม่มีรายการซื้อ"
               subMessage="กดปุ่มด้านบนเพื่อจดรายการแรกของวันนี้"

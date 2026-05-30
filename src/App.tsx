@@ -4,6 +4,7 @@ import AppPreferences from './components/AppPreferences'
 import BottomNav from './components/BottomNav'
 import HomePage from './pages/HomePage'
 import AddPurchasePage from './pages/AddPurchasePage'
+import { PageSkeleton } from './components/Skeleton'
 
 const HistoryPage = lazy(() => import('./pages/HistoryPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
@@ -14,7 +15,7 @@ export default function App() {
     <BrowserRouter>
       <AppPreferences />
       <div className="min-h-screen bg-gray-50 pb-20">
-        <Suspense fallback={<div className="flex items-center justify-center h-64 text-gray-500">กำลังโหลด...</div>}>
+        <Suspense fallback={<PageSkeleton />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/add" element={<AddPurchasePage />} />

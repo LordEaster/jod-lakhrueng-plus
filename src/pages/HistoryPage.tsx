@@ -11,6 +11,7 @@ import PurchaseListItem from '../components/PurchaseListItem'
 import ConfirmDialog from '../components/ConfirmDialog'
 import MonthSummaryCard from '../components/MonthSummaryCard'
 import EmptyState from '../components/EmptyState'
+import { HistorySkeleton, SummaryCardSkeleton } from '../components/Skeleton'
 import type { PurchaseEntry } from '../types/purchase'
 
 export default function HistoryPage() {
@@ -65,6 +66,10 @@ export default function HistoryPage() {
 
   const prevTotal = priorMonthEntries ? getMonthlySummary(priorMonthEntries, scheme, 0).totalSubsidy : 0
   const enrichedEntries = monthEntries ? enrichEntries(monthEntries, prevTotal) : []
+  const isHistoryLoading = !monthEntries || !priorMonthEntries
+  const monthOptions = availableMonths?.includes(selectedMonth)
+    ? availableMonths
+    : [selectedMonth, ...(availableMonths ?? [])]
 
   const byDate = new Map<string, EnrichedEntry[]>()
   for (const e of enrichedEntries) {
@@ -109,7 +114,7 @@ export default function HistoryPage() {
           className="w-full text-lg border-2 border-gray-200 rounded-2xl px-4 py-3 bg-white focus:border-blue-500 focus:outline-none"
           aria-label="เลือกเดือน"
         >
-          {(availableMonths ?? [thisMonthKey()]).map((month) => (
+          {monthOptions.map((month) => (
             <option key={month} value={month}>
               {formatThaiMonth(month)}
             </option>
@@ -117,14 +122,18 @@ export default function HistoryPage() {
         </select>
       </div>
 
-      {monthlySummary && (
-        <div className="px-4 mb-4">
+      <div className="px-4 mb-4">
+        {monthlySummary ? (
           <MonthSummaryCard summary={monthlySummary} monthlyCap={scheme.monthlyCap} month={selectedMonth} />
-        </div>
-      )}
+        ) : (
+          <SummaryCardSkeleton variant="month" />
+        )}
+      </div>
 
       <div className="px-4 space-y-6 pb-6">
-        {sortedDates.length === 0 ? (
+        {isHistoryLoading ? (
+          <HistorySkeleton />
+        ) : sortedDates.length === 0 ? (
           <EmptyState message="ไม่มีรายการในเดือนนี้" />
         ) : (
           sortedDates.map((date) => {
