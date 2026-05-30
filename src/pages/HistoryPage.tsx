@@ -13,6 +13,7 @@ import ConfirmDialog from '../components/ConfirmDialog'
 import MonthSummaryCard from '../components/MonthSummaryCard'
 import EmptyState from '../components/EmptyState'
 import { HistorySkeleton, SummaryCardSkeleton } from '../components/Skeleton'
+import SelectField from '../components/SelectField'
 import type { PurchaseEntry } from '../types/purchase'
 
 export default function HistoryPage() {
@@ -103,16 +104,15 @@ export default function HistoryPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="mx-auto w-full max-w-md sm:max-w-xl md:max-w-3xl">
       <header className="px-4 pt-6 pb-4">
         <h1 className="text-2xl font-bold text-gray-800">ประวัติการซื้อ</h1>
       </header>
 
-      <div className="px-4 mb-4">
-        <select
+      <div className="mb-4 px-4 md:max-w-xs">
+        <SelectField
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
-          className="w-full text-lg border-2 border-gray-200 rounded-xl px-4 py-3 bg-white focus:border-green-500 focus:outline-none"
           aria-label="เลือกเดือน"
         >
           {monthOptions.map((month) => (
@@ -120,7 +120,7 @@ export default function HistoryPage() {
               {formatThaiMonth(month)}
             </option>
           ))}
-        </select>
+        </SelectField>
       </div>
 
       <div className="px-4 mb-4">
@@ -144,7 +144,7 @@ export default function HistoryPage() {
             const dayUserPaid = dayEntries.reduce((s, e) => s + e.userPaidAmount, 0)
             return (
               <div key={date}>
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
                   <h2 className="text-lg font-semibold text-gray-700">{formatThaiDate(date)}</h2>
                   <span className="text-sm text-gray-400">รวม {formatAmount(dayTotal)} บาท</span>
                 </div>
@@ -158,7 +158,7 @@ export default function HistoryPage() {
                     />
                   ))}
                 </div>
-                <div className="mt-2 px-1 flex gap-4 text-sm text-gray-500">
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 px-1 text-sm text-gray-500">
                   <span>รัฐช่วยรวม <span className="font-medium text-green-600">{formatAmount(daySubsidy)} บาท</span></span>
                   <span>จ่ายเองรวม <span className="font-medium text-gray-700">{formatAmount(dayUserPaid)} บาท</span></span>
                 </div>
@@ -182,7 +182,7 @@ export default function HistoryPage() {
 
       {editTarget && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm max-h-[calc(100vh-2rem)] overflow-y-auto shadow-xl">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-sm overflow-y-auto rounded-3xl bg-white p-5 shadow-xl sm:p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-4">แก้ไขรายการ</h2>
             <div className="space-y-3">
               <div>
@@ -207,7 +207,7 @@ export default function HistoryPage() {
                 />
               </div>
             </div>
-            <div className="flex gap-3 mt-5">
+            <div className="mt-5 flex flex-col gap-3 min-[380px]:flex-row">
               <button onClick={() => setEditTarget(null)} className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.97] transition-transform duration-100">ยกเลิก</button>
               <button onClick={handleEdit} className="flex-1 bg-green-600 text-white font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.95] transition-transform duration-100">บันทึก</button>
             </div>

@@ -11,12 +11,12 @@ export default function AmountShortcutGrid({ toFillToday, onSelect }: Props) {
   return (
     <div>
       <p className="text-base text-gray-500 mb-2">กดเลือกยอดได้เลย</p>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-2 min-[360px]:grid-cols-4">
         {PRESET_AMOUNTS.map((amount) => (
           <button
             key={amount}
             onClick={() => onSelect(amount)}
-            className="bg-gray-100 hover:bg-green-50 text-gray-800 font-semibold rounded-xl py-3 text-base min-h-[48px] transition-colors active:scale-[0.97] transition-transform duration-100"
+            className="min-h-[48px] rounded-xl bg-gray-100 py-3 text-base font-semibold text-gray-800 transition-colors duration-100 hover:bg-green-50 active:scale-[0.97]"
           >
             {formatAmount(amount)}
           </button>
@@ -24,7 +24,7 @@ export default function AmountShortcutGrid({ toFillToday, onSelect }: Props) {
         {toFillToday > 0 && (
           <button
             onClick={() => onSelect(toFillToday)}
-            className="col-span-4 bg-green-50 hover:bg-green-100 text-green-800 font-semibold rounded-xl py-3 text-base min-h-[48px] border border-green-200 transition-colors active:scale-[0.97] transition-transform duration-100"
+            className="col-span-2 min-h-[48px] rounded-xl border border-green-200 bg-green-50 py-3 text-base font-semibold text-green-800 transition-colors duration-100 hover:bg-green-100 active:scale-[0.97] min-[360px]:col-span-4"
           >
             เต็มสิทธิวันนี้ ({formatAmount(toFillToday)} บาท)
           </button>

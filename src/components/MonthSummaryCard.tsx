@@ -14,7 +14,7 @@ export default function MonthSummaryCard({ summary, monthlyCap, month }: Props) 
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-xl font-semibold text-gray-700">เดือนนี้</h2>
         <span className="text-base text-gray-400">{formatThaiMonth(displayMonth)}</span>
       </div>
@@ -39,7 +39,7 @@ export default function MonthSummaryCard({ summary, monthlyCap, month }: Props) 
         />
       </div>
 
-      <div className="flex justify-between text-base">
+      <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-base">
         <span className="text-gray-500">
           เหลืออีก <span className={`font-semibold ${isLow ? 'text-orange-600' : 'text-gray-800'}`}>{formatAmount(summary.remainingMonthly)} บาท</span>
         </span>

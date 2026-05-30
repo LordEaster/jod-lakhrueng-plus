@@ -13,6 +13,7 @@ import { CATEGORY_LABELS, type PurchaseCategory } from '../types/purchase'
 import AmountShortcutGrid from '../components/AmountShortcutGrid'
 import QuickRepeatButtons from '../components/QuickRepeatButtons'
 import ConfirmDialog from '../components/ConfirmDialog'
+import SelectField from '../components/SelectField'
 import type { PurchaseEntry } from '../types/purchase'
 
 type SavedFeedback = { subsidyAmount: number; userPaidAmount: number } | null
@@ -114,7 +115,7 @@ export default function AddPurchasePage() {
 
   if (savedFeedback) {
     return (
-      <div className="max-w-md mx-auto px-4 pt-12 flex flex-col items-center text-center">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center px-4 pt-12 text-center sm:max-w-lg">
         <CircleCheckBig className="mb-4 h-16 w-16 text-green-600 animate-[bounce_0.4s_ease-out_1]" aria-hidden="true" strokeWidth={1.8} />
         <h1 className="text-3xl font-bold text-green-700 mb-5">บันทึกแล้ว</h1>
         <div className="w-full bg-green-50 border border-green-200 rounded-2xl p-5 mb-8">
@@ -131,7 +132,7 @@ export default function AddPurchasePage() {
             </div>
           </div>
         </div>
-        <div className="flex gap-3 w-full">
+        <div className="flex w-full flex-col gap-3 min-[380px]:flex-row">
           <button
             onClick={() => { setSavedFeedback(null); setAmount(''); setTitle(''); setCategory(''); setSelectedDate(todayKey()) }}
             className="flex-1 border-2 border-green-600 text-green-600 font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.97] transition-transform duration-100"
@@ -150,7 +151,7 @@ export default function AddPurchasePage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="mx-auto w-full max-w-md sm:max-w-xl md:max-w-2xl">
       <header className="flex items-center gap-3 px-4 pt-6 pb-4">
         <button
           onClick={() => navigate(-1)}
@@ -162,9 +163,9 @@ export default function AddPurchasePage() {
         <h1 className="text-2xl font-bold text-gray-800">จดรายการซื้อ</h1>
       </header>
 
-      <div className="px-4 space-y-5">
+      <div className="grid gap-5 px-4 md:grid-cols-2">
         {/* Amount input */}
-        <div>
+        <div className="md:col-span-2">
           <label htmlFor="amount" className="text-base text-gray-500 mb-1 block">
             ยอดซื้อ (บาท) <span className="text-red-500">*</span>
           </label>
@@ -184,14 +185,18 @@ export default function AddPurchasePage() {
           {error && <p id="amount-error" className="text-red-500 text-base mt-1">{error}</p>}
         </div>
 
-        <AmountShortcutGrid toFillToday={toFillToday} onSelect={handleShortcut} />
+        <div className="md:col-span-2">
+          <AmountShortcutGrid toFillToday={toFillToday} onSelect={handleShortcut} />
+        </div>
 
         {recentEntries && recentEntries.length > 0 && (
-          <QuickRepeatButtons entries={recentEntries} onSelect={handleQuickRepeat} />
+          <div className="md:col-span-2">
+            <QuickRepeatButtons entries={recentEntries} onSelect={handleQuickRepeat} />
+          </div>
         )}
 
         {/* Optional title */}
-        <div>
+        <div className="md:col-span-2">
           <label htmlFor="title" className="text-base text-gray-500 mb-1 block">
             ชื่อรายการ <span className="text-gray-300">(ไม่บังคับ)</span>
           </label>
@@ -212,19 +217,18 @@ export default function AddPurchasePage() {
           <label htmlFor="category" className="text-base text-gray-500 mb-1 block">
             หมวดหมู่ <span className="text-gray-300">(ไม่บังคับ)</span>
           </label>
-          <select
+          <SelectField
             id="category"
             ref={categorySelectRef}
             value={category}
             onChange={(e) => setCategory(e.target.value as PurchaseCategory | '')}
             onKeyDown={(e) => focusOnEnter(e, saveButtonRef.current)}
-            className="w-full text-lg border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-green-500 focus:outline-none bg-white"
           >
             <option value="">-- เลือกหมวดหมู่ --</option>
             {(Object.entries(CATEGORY_LABELS) as [PurchaseCategory, string][]).map(([key, label]) => (
               <option key={key} value={key}>{label}</option>
             ))}
-          </select>
+          </SelectField>
         </div>
 
         {/* Date (backdate) */}
@@ -252,7 +256,7 @@ export default function AddPurchasePage() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pb-28">
+        <div className="flex flex-col gap-3 pb-28 min-[380px]:flex-row md:col-span-2">
           <button
             onClick={() => navigate(-1)}
             className="flex-1 border-2 border-gray-300 text-gray-700 font-semibold text-lg py-4 rounded-xl min-h-[56px] active:scale-[0.97] transition-transform duration-100"

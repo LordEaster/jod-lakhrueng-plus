@@ -10,8 +10,8 @@ interface Props {
 
 export default function PurchaseListItem({ entry, onEdit, onDelete }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-      <div className="flex items-start justify-between">
+    <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+      <div className="flex flex-col gap-3 min-[380px]:flex-row min-[380px]:items-start min-[380px]:justify-between">
         <div className="flex-1 min-w-0">
           <p className="text-lg font-medium text-gray-800 truncate">
             {entry.title ?? 'ไม่ระบุชื่อ'}
@@ -19,12 +19,12 @@ export default function PurchaseListItem({ entry, onEdit, onDelete }: Props) {
           {entry.category && (
             <p className="text-sm text-gray-400">{CATEGORY_LABELS[entry.category]}</p>
           )}
-          <div className="flex gap-3 mt-1 text-sm text-gray-500">
+          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-gray-500">
             <span>รัฐช่วย <span className="font-medium text-green-600">{formatAmount(entry.subsidyAmount)} บาท</span></span>
             <span>จ่ายเอง <span className="font-medium text-gray-700">{formatAmount(entry.userPaidAmount)} บาท</span></span>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2 ml-3">
+        <div className="flex items-center justify-between gap-3 min-[380px]:ml-3 min-[380px]:flex-col min-[380px]:items-end">
           <p className="text-xl font-bold text-gray-800">{formatAmount(entry.amount)} บาท</p>
           <div className="flex gap-2">
             <button

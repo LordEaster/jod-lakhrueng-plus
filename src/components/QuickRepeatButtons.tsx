@@ -17,10 +17,10 @@ export default function QuickRepeatButtons({ entries, onSelect }: Props) {
           <button
             key={entry.id}
             onClick={() => onSelect(entry)}
-            className="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 flex justify-between items-center min-h-[56px] transition-colors active:scale-[0.97] transition-transform duration-100"
+            className="flex min-h-[56px] w-full items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 transition-colors duration-100 hover:bg-gray-100 active:scale-[0.97]"
           >
-            <span className="text-base text-gray-700">{entry.title ?? 'ไม่ระบุชื่อ'}</span>
-            <span className="text-lg font-semibold text-gray-800">{formatAmount(entry.amount)} บาท</span>
+            <span className="min-w-0 truncate text-base text-gray-700">{entry.title ?? 'ไม่ระบุชื่อ'}</span>
+            <span className="shrink-0 text-lg font-semibold text-gray-800">{formatAmount(entry.amount)} บาท</span>
           </button>
         ))}
       </div>
