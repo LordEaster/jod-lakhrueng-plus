@@ -1,3 +1,4 @@
+import { ArrowLeft, CircleX } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 export default function PrivacyPage() {
@@ -5,7 +6,9 @@ export default function PrivacyPage() {
   return (
     <div className="max-w-md mx-auto">
       <header className="flex items-center gap-3 px-4 pt-6 pb-4">
-        <button onClick={() => navigate(-1)} className="text-2xl p-2 -ml-2 text-gray-600" aria-label="ย้อนกลับ">←</button>
+        <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-gray-600" aria-label="ย้อนกลับ">
+          <ArrowLeft className="h-6 w-6" aria-hidden="true" />
+        </button>
         <h1 className="text-2xl font-bold text-gray-800">นโยบายความเป็นส่วนตัว</h1>
       </header>
 
@@ -18,10 +21,22 @@ export default function PrivacyPage() {
         <div>
           <h2 className="text-xl font-semibold mb-2">เราไม่มี</h2>
           <ul className="space-y-2 text-gray-600">
-            <li>✕ ระบบ login หรือสมัครสมาชิก</li>
-            <li>✕ การเก็บข้อมูลบน server</li>
-            <li>✕ การติดตามพฤติกรรมผู้ใช้</li>
-            <li>✕ โฆษณา หรือ third-party tracker</li>
+            <li className="flex items-start gap-2">
+              <CircleX className="mt-1 h-5 w-5 flex-shrink-0 text-red-500" aria-hidden="true" />
+              <span>ระบบ login หรือสมัครสมาชิก</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CircleX className="mt-1 h-5 w-5 flex-shrink-0 text-red-500" aria-hidden="true" />
+              <span>การเก็บข้อมูลบน server</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CircleX className="mt-1 h-5 w-5 flex-shrink-0 text-red-500" aria-hidden="true" />
+              <span>การติดตามพฤติกรรมผู้ใช้</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CircleX className="mt-1 h-5 w-5 flex-shrink-0 text-red-500" aria-hidden="true" />
+              <span>โฆษณา หรือ third-party tracker</span>
+            </li>
           </ul>
         </div>
 

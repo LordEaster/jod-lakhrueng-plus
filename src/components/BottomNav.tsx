@@ -1,9 +1,10 @@
+import { ClipboardList, Home, Settings } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 const tabs = [
-  { to: '/', label: 'หน้าแรก', icon: '🏠' },
-  { to: '/history', label: 'ประวัติ', icon: '📋' },
-  { to: '/settings', label: 'ตั้งค่า', icon: '⚙️' },
+  { to: '/', label: 'หน้าแรก', Icon: Home },
+  { to: '/history', label: 'ประวัติ', Icon: ClipboardList },
+  { to: '/settings', label: 'ตั้งค่า', Icon: Settings },
 ]
 
 export default function BottomNav() {
@@ -13,7 +14,7 @@ export default function BottomNav() {
       aria-label="เมนูหลัก"
     >
       <div className="flex">
-        {tabs.map(({ to, label, icon }) => (
+        {tabs.map(({ to, label, Icon }) => (
           <NavLink
             key={to}
             to={to}
@@ -25,7 +26,7 @@ export default function BottomNav() {
             }
             aria-label={label}
           >
-            <span className="text-xl leading-none mb-1" aria-hidden="true">{icon}</span>
+            <Icon className="mb-1 h-5 w-5" aria-hidden="true" strokeWidth={2.4} />
             <span>{label}</span>
           </NavLink>
         ))}

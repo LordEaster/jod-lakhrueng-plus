@@ -1,3 +1,4 @@
+import { ArrowRight, Check, Download, Trash2, Upload } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSchemeSetting, useAppSetting } from '../hooks/useSettings'
@@ -171,8 +172,9 @@ export default function SettingsPage() {
             <button onClick={handleResetScheme} className="flex-1 border-2 border-gray-300 text-gray-600 text-base font-medium py-3 rounded-2xl min-h-[48px]">
               คืนค่าเริ่มต้น
             </button>
-            <button onClick={handleSaveScheme} className="flex-1 bg-blue-600 text-white text-base font-semibold py-3 rounded-2xl min-h-[48px]">
-              {saved ? '✓ บันทึกแล้ว' : 'บันทึก'}
+            <button onClick={handleSaveScheme} className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white text-base font-semibold py-3 rounded-2xl min-h-[48px]">
+              {saved && <Check className="h-5 w-5" aria-hidden="true" />}
+              {saved ? 'บันทึกแล้ว' : 'บันทึก'}
             </button>
           </div>
         </div>
@@ -199,22 +201,26 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold text-gray-700">ข้อมูล</h2>
           <p className="text-base text-gray-500">ข้อมูลทั้งหมดเก็บอยู่ในเครื่องนี้เท่านั้น แนะนำสำรองข้อมูลเป็นประจำ</p>
 
-          <button onClick={handleExport} className="w-full border-2 border-blue-200 text-blue-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
-            📥 สำรองข้อมูล (Export)
+          <button onClick={handleExport} className="w-full inline-flex items-center justify-center gap-2 border-2 border-blue-200 text-blue-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+            <Download className="h-5 w-5" aria-hidden="true" />
+            สำรองข้อมูล (Export)
           </button>
 
-          <button onClick={() => importRef.current?.click()} className="w-full border-2 border-gray-200 text-gray-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
-            📤 นำข้อมูลกลับมา (Import)
+          <button onClick={() => importRef.current?.click()} className="w-full inline-flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+            <Upload className="h-5 w-5" aria-hidden="true" />
+            นำข้อมูลกลับมา (Import)
           </button>
           <input ref={importRef} type="file" accept=".json" onChange={handleImport} className="hidden" aria-label="นำเข้าไฟล์สำรองข้อมูล" />
 
-          <button onClick={() => setShowClearConfirm(true)} className="w-full border-2 border-red-200 text-red-600 text-base font-medium py-3 rounded-2xl min-h-[48px]">
-            🗑️ ล้างข้อมูลทั้งหมด
+          <button onClick={() => setShowClearConfirm(true)} className="w-full inline-flex items-center justify-center gap-2 border-2 border-red-200 text-red-600 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+            <Trash2 className="h-5 w-5" aria-hidden="true" />
+            ล้างข้อมูลทั้งหมด
           </button>
         </div>
 
-        <button onClick={() => navigate('/privacy')} className="w-full text-center text-blue-600 text-base py-3">
-          นโยบายความเป็นส่วนตัว →
+        <button onClick={() => navigate('/privacy')} className="inline-flex w-full items-center justify-center gap-1 text-center text-blue-600 text-base py-3">
+          นโยบายความเป็นส่วนตัว
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 

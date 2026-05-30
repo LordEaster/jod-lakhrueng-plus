@@ -1,3 +1,4 @@
+import { ArrowRight, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useSchemeSetting, useAppSetting } from '../hooks/useSettings'
 import { useCampaignStatus } from '../hooks/useCampaignStatus'
@@ -56,10 +57,11 @@ export default function HomePage() {
 
         <button
           onClick={() => navigate('/add')}
-          className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-2xl font-bold py-5 rounded-2xl min-h-[72px] shadow-lg transition-colors"
+          className="inline-flex w-full items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-2xl font-bold py-5 rounded-2xl min-h-[72px] shadow-lg transition-colors"
           aria-label="จดรายการซื้อใหม่"
         >
-          + จดรายการซื้อ
+          <Plus className="h-7 w-7" aria-hidden="true" strokeWidth={2.5} />
+          จดรายการซื้อ
         </button>
 
         {monthlySummary ? (
@@ -89,9 +91,10 @@ export default function HomePage() {
               ))}
               <button
                 onClick={() => navigate('/history')}
-                className="w-full text-center text-blue-600 font-medium py-3 text-lg"
+                className="inline-flex w-full items-center justify-center gap-1 text-center text-blue-600 font-medium py-3 text-lg"
               >
-                ดูประวัติทั้งหมด →
+                ดูประวัติทั้งหมด
+                <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
           )}

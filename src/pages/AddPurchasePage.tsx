@@ -1,3 +1,4 @@
+import { ArrowLeft, CircleCheckBig } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
@@ -103,7 +104,7 @@ export default function AddPurchasePage() {
   if (savedFeedback) {
     return (
       <div className="max-w-md mx-auto px-4 pt-12 flex flex-col items-center text-center">
-        <div className="text-6xl mb-4" aria-hidden="true">✅</div>
+        <CircleCheckBig className="mb-4 h-16 w-16 text-green-600" aria-hidden="true" strokeWidth={1.8} />
         <h1 className="text-2xl font-bold text-gray-800 mb-2">บันทึกแล้ว</h1>
         <p className="text-xl text-gray-600 mb-1">รัฐช่วย <span className="font-bold text-green-600">{formatAmount(savedFeedback.subsidyAmount)} บาท</span></p>
         <p className="text-xl text-gray-600 mb-8">คุณจ่ายเอง <span className="font-bold text-gray-800">{formatAmount(savedFeedback.userPaidAmount)} บาท</span></p>
@@ -133,7 +134,7 @@ export default function AddPurchasePage() {
           className="text-2xl p-2 -ml-2 text-gray-600"
           aria-label="ย้อนกลับ"
         >
-          ←
+          <ArrowLeft className="h-6 w-6" aria-hidden="true" />
         </button>
         <h1 className="text-2xl font-bold text-gray-800">จดรายการซื้อ</h1>
       </header>

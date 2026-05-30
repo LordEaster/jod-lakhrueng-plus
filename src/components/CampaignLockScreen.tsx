@@ -1,3 +1,4 @@
+import { CircleCheckBig, Hourglass } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { CampaignStatus } from '../hooks/useCampaignStatus'
 import { formatThaiDate } from '../logic/formatThai'
@@ -10,12 +11,11 @@ interface Props {
 
 export default function CampaignLockScreen({ status, startDate, endDate }: Props) {
   const navigate = useNavigate()
+  const StatusIcon = status === 'before' ? Hourglass : CircleCheckBig
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-      <div className="text-6xl mb-6" aria-hidden="true">
-        {status === 'before' ? '⏳' : '✅'}
-      </div>
+      <StatusIcon className="mb-6 h-16 w-16 text-blue-600" aria-hidden="true" strokeWidth={1.8} />
       {status === 'before' && (
         <>
           <h1 className="text-2xl font-bold text-gray-800 mb-3">โครงการยังไม่เริ่ม</h1>
