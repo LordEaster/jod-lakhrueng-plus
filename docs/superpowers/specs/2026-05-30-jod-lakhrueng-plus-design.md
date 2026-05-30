@@ -15,6 +15,10 @@ Users record purchases; the app calculates how much the government subsidises vs
 
 **Target users:** Elderly Thai users, general public, family members who set up the app for elderly relatives.
 
+**Context:** จดละครึ่ง พลัส เป็นเครื่องมือช่วยจดส่วนตัว สำหรับผู้ใช้สิทธิ **โครงการคนละครึ่ง พลัส** โดยเฉพาะ พัฒนาขึ้นเพื่อความสนุกและเพื่อแก้ปัญหาที่พบในชีวิตจริง ไม่ใช่เว็บไซต์ทางการของหน่วยงานรัฐหรือของโครงการแต่อย่างใด
+
+**Privacy stance:** แอปนี้ไม่มีการเก็บ ส่ง หรือแบ่งปันข้อมูลผู้ใช้ใดๆ ทั้งสิ้น ทุกรายการซื้อและการตั้งค่าถูกเก็บไว้ในเครื่องของผู้ใช้เท่านั้น ไม่มี backend ไม่มี analytics ไม่มี tracking ไม่มีระบบ login สิ่งที่เกิดขึ้นในแอปอยู่ในเครื่องคุณเท่านั้น
+
 ---
 
 ## 2. Tech Stack
