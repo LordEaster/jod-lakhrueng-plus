@@ -1,5 +1,5 @@
 import { ArrowLeft, CircleCheckBig } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState, type KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
@@ -29,6 +29,9 @@ export default function AddPurchasePage() {
   const [error, setError] = useState('')
   const [savedFeedback, setSavedFeedback] = useState<SavedFeedback>(null)
   const [showLargeConfirm, setShowLargeConfirm] = useState(false)
+  const titleInputRef = useRef<HTMLInputElement>(null)
+  const categorySelectRef = useRef<HTMLSelectElement>(null)
+  const saveButtonRef = useRef<HTMLButtonElement>(null)
 
   const numAmount = parseMoneyInput(amount) ?? 0
   const toFillToday = dailySummary?.toFillDaily ?? 0
@@ -47,6 +50,12 @@ export default function AddPurchasePage() {
     setAmount(String(entry.amount))
     setTitle(entry.title ?? '')
     setCategory((entry.category as PurchaseCategory) ?? '')
+  }
+
+  function focusOnEnter(event: KeyboardEvent<HTMLElement>, nextField: HTMLElement | null) {
+    if (event.key !== 'Enter' || event.nativeEvent.isComposing) return
+    event.preventDefault()
+    nextField?.focus()
   }
 
   async function doSave() {
@@ -152,6 +161,7 @@ export default function AddPurchasePage() {
             pattern="[0-9]*[.]?[0-9]{0,2}"
             value={amount}
             onChange={(e) => handleAmountInput(e.target.value)}
+            onKeyDown={(e) => focusOnEnter(e, titleInputRef.current)}
             placeholder="0"
             autoFocus
             className="w-full text-4xl font-bold text-gray-800 border-2 border-gray-300 rounded-2xl px-4 py-4 focus:border-blue-500 focus:outline-none text-center"
@@ -174,8 +184,10 @@ export default function AddPurchasePage() {
           <input
             id="title"
             type="text"
+            ref={titleInputRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => focusOnEnter(e, categorySelectRef.current)}
             placeholder="เช่น ข้าวแกง กาแฟ"
             className="w-full text-lg border-2 border-gray-200 rounded-2xl px-4 py-3 focus:border-blue-500 focus:outline-none"
           />
@@ -188,8 +200,10 @@ export default function AddPurchasePage() {
           </label>
           <select
             id="category"
+            ref={categorySelectRef}
             value={category}
             onChange={(e) => setCategory(e.target.value as PurchaseCategory | '')}
+            onKeyDown={(e) => focusOnEnter(e, saveButtonRef.current)}
             className="w-full text-lg border-2 border-gray-200 rounded-2xl px-4 py-3 focus:border-blue-500 focus:outline-none bg-white"
           >
             <option value="">-- เลือกหมวดหมู่ --</option>
@@ -208,6 +222,7 @@ export default function AddPurchasePage() {
             ยกเลิก
           </button>
           <button
+            ref={saveButtonRef}
             onClick={handleSave}
             className="flex-1 bg-blue-600 text-white font-semibold text-lg py-4 rounded-2xl min-h-[56px] shadow-md"
           >

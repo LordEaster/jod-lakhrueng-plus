@@ -241,7 +241,7 @@ export default function SettingsPage() {
 
           <button onClick={handleExportJson} className="w-full inline-flex items-center justify-center gap-2 border-2 border-blue-200 text-blue-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
             <Download className="h-5 w-5" aria-hidden="true" />
-            สำรองข้อมูลครบชุด (JSON)
+            สำรองข้อมูล (JSON)
           </button>
 
           <div className="grid grid-cols-2 gap-3">
@@ -268,10 +268,16 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <button onClick={() => navigate('/privacy')} className="inline-flex w-full items-center justify-center gap-1 text-center text-blue-600 text-base py-3">
-          นโยบายความเป็นส่วนตัว
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </button>
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => navigate('/privacy')} className="inline-flex items-center justify-center gap-1 text-center text-blue-600 text-base py-3">
+            นโยบายความเป็นส่วนตัว
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button onClick={() => navigate('/terms')} className="inline-flex items-center justify-center gap-1 text-center text-blue-600 text-base py-3">
+            เงื่อนไขการใช้
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
 
         <p className="text-center text-xs text-gray-400">
           เวอร์ชัน {__APP_VERSION__} ({__APP_BUILD_ID__.slice(0, 7)})
