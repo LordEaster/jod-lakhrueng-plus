@@ -14,6 +14,34 @@ import CampaignLockScreen from '../components/CampaignLockScreen'
 import InstallHint from '../components/InstallHint'
 import { formatThaiDate, formatAmount } from '../logic/formatThai'
 
+function HomeHeader() {
+  return (
+    <header className="px-4 pt-6 pb-2 text-center">
+      <h1 className="sr-only">จดละครึ่ง พลัส</h1>
+      <picture>
+        <source
+          type="image/avif"
+          srcSet="/logo-240.avif 1x, /logo-480.avif 2x, /logo-720.avif 3x"
+        />
+        <source
+          type="image/webp"
+          srcSet="/logo-240.webp 1x, /logo-480.webp 2x, /logo-720.webp 3x"
+        />
+        <img
+          src="/logo-720.webp"
+          alt="จดละครึ่ง พลัส"
+          width="240"
+          height="80"
+          decoding="async"
+          fetchPriority="high"
+          className="mx-auto h-auto w-full max-w-[240px]"
+        />
+      </picture>
+      <p className="text-sm text-gray-400 mt-2">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
+    </header>
+  )
+}
+
 export default function HomePage() {
   const navigate = useNavigate()
   const scheme = useSchemeSetting()
@@ -30,10 +58,7 @@ export default function HomePage() {
   if (status === 'before' || status === 'after') {
     return (
       <div className="max-w-md mx-auto">
-        <header className="px-4 pt-6 pb-2">
-          <h1 className="text-2xl font-bold text-gray-800">จดละครึ่ง พลัส</h1>
-          <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
-        </header>
+        <HomeHeader />
         <CampaignLockScreen status={status} startDate={startDate} endDate={endDate} />
       </div>
     )
@@ -41,10 +66,7 @@ export default function HomePage() {
 
   return (
     <div className="max-w-md mx-auto">
-      <header className="px-4 pt-6 pb-2">
-        <h1 className="text-2xl font-bold text-gray-800">จดละครึ่ง พลัส</h1>
-        <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
-      </header>
+      <HomeHeader />
 
       {appSetting.showInstallHint && <InstallHint onDismiss={dismissInstallHint} />}
 
