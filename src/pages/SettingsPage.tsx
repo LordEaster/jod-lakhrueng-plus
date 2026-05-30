@@ -6,6 +6,7 @@ import { saveSchemeSetting, saveAppSetting } from '../db/settingRepository'
 import { getAllPurchases, clearAllPurchases } from '../db/purchaseRepository'
 import { db } from '../db/db'
 import { DEFAULT_SCHEME } from '../types/setting'
+import { ImportFileError, createPurchasesCsv, createPurchasesXlsxBlob, parsePurchasesFile } from '../logic/dataPortability'
 import ConfirmDialog from '../components/ConfirmDialog'
 import type { PurchaseEntry } from '../types/purchase'
 
@@ -66,7 +67,16 @@ export default function SettingsPage() {
     await saveAppSetting({ ...appSetting, fontSizeMode })
   }
 
-  async function handleExport() {
+  function downloadBlob(blob: Blob, fileName: string) {
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function handleExportJson() {
     const purchases = await getAllPurchases()
     const schemeData = await db.settings.get('scheme')
     const appData = await db.settings.get('app')
@@ -77,32 +87,60 @@ export default function SettingsPage() {
       settings: { scheme: schemeData?.value, app: appData?.value },
     }
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `jod-lakhrueng-backup-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, `jod-lakhrueng-backup-${new Date().toISOString().slice(0, 10)}.json`)
+  }
+
+  async function handleExportXlsx() {
+    const purchases = await getAllPurchases()
+    const blob = await createPurchasesXlsxBlob(purchases, scheme)
+    downloadBlob(blob, `jod-lakhrueng-purchases-${new Date().toISOString().slice(0, 10)}.xlsx`)
+  }
+
+  async function handleExportCsv() {
+    const purchases = await getAllPurchases()
+    const csv = createPurchasesCsv(purchases, scheme)
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' })
+    downloadBlob(blob, `jod-lakhrueng-purchases-${new Date().toISOString().slice(0, 10)}.csv`)
   }
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    const text = await file.text()
     try {
-      const data = JSON.parse(text)
-      if (!data.purchases || !Array.isArray(data.purchases)) {
-        alert('ไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์สำรองข้อมูลที่ถูกต้อง')
-        return
+      if (file.name.toLowerCase().endsWith('.json')) {
+        const data = JSON.parse(await file.text())
+        if (!data.purchases || !Array.isArray(data.purchases)) {
+          alert('ไฟล์ไม่ถูกต้อง กรุณาเลือกไฟล์สำรองข้อมูลที่ถูกต้อง')
+          return
+        }
+        await db.purchases.bulkPut(data.purchases as PurchaseEntry[])
+        if (data.settings?.scheme) await db.settings.put({ key: 'scheme', value: data.settings.scheme })
+        if (data.settings?.app) await db.settings.put({ key: 'app', value: data.settings.app })
+        alert(`นำข้อมูลกลับมาแล้ว ${data.purchases.length} รายการ`)
+      } else {
+        const purchases = await parsePurchasesFile(file)
+        if (purchases.length === 0) {
+          alert('ไม่พบรายการซื้อในไฟล์นี้')
+          return
+        }
+        await db.purchases.bulkPut(purchases)
+        alert(`นำรายการจากไฟล์ตารางแล้ว ${purchases.length} รายการ`)
       }
-      await db.purchases.bulkPut(data.purchases as PurchaseEntry[])
-      if (data.settings?.scheme) await db.settings.put({ key: 'scheme', value: data.settings.scheme })
-      if (data.settings?.app) await db.settings.put({ key: 'app', value: data.settings.app })
-      alert(`นำข้อมูลกลับมาแล้ว ${data.purchases.length} รายการ`)
-    } catch {
-      alert('เกิดข้อผิดพลาด ไม่สามารถนำข้อมูลกลับมาได้')
+    } catch (error) {
+      alert(getImportErrorMessage(error))
     }
     e.target.value = ''
+  }
+
+  function getImportErrorMessage(error: unknown): string {
+    if (error instanceof ImportFileError) {
+      if (error.code === 'unsupported-file-type') return 'ยังไม่รองรับไฟล์ชนิดนี้ กรุณาเลือกไฟล์ .json, .xlsx หรือ .csv'
+      if (error.code === 'unreadable-file') return 'อ่านไฟล์นี้ไม่ได้ กรุณาตรวจว่าไฟล์ไม่เสียหาย และลองส่งออกไฟล์ใหม่อีกครั้ง'
+      if (error.code === 'invalid-csv') return 'ไฟล์ CSV ไม่ถูกต้อง กรุณาตรวจเครื่องหมายคำพูดและรูปแบบตาราง'
+      if (error.code === 'invalid-row') return `ข้อมูลแถวที่ ${error.rowNumber ?? '-'} ไม่ครบ กรุณาตรวจวันที่และยอดซื้อ`
+    }
+    if (error instanceof SyntaxError) return 'ไฟล์ JSON ไม่ถูกต้อง กรุณาเลือกไฟล์สำรองข้อมูลที่ส่งออกจากแอป'
+    return 'เกิดข้อผิดพลาด ไม่สามารถนำข้อมูลกลับมาได้ กรุณาตรวจรูปแบบไฟล์'
   }
 
   async function handleClearAll() {
@@ -201,16 +239,28 @@ export default function SettingsPage() {
           <h2 className="text-xl font-semibold text-gray-700">ข้อมูล</h2>
           <p className="text-base text-gray-500">ข้อมูลทั้งหมดเก็บอยู่ในเครื่องนี้เท่านั้น แนะนำสำรองข้อมูลเป็นประจำ</p>
 
-          <button onClick={handleExport} className="w-full inline-flex items-center justify-center gap-2 border-2 border-blue-200 text-blue-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+          <button onClick={handleExportJson} className="w-full inline-flex items-center justify-center gap-2 border-2 border-blue-200 text-blue-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
             <Download className="h-5 w-5" aria-hidden="true" />
-            สำรองข้อมูล (Export)
+            สำรองข้อมูลครบชุด (JSON)
           </button>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={handleExportXlsx} className="inline-flex items-center justify-center gap-2 border-2 border-emerald-200 text-emerald-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+              <Download className="h-5 w-5" aria-hidden="true" />
+              Export Excel
+            </button>
+            <button onClick={handleExportCsv} className="inline-flex items-center justify-center gap-2 border-2 border-emerald-200 text-emerald-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
+              <Download className="h-5 w-5" aria-hidden="true" />
+              Export CSV
+            </button>
+          </div>
+          <p className="text-sm text-gray-400">Excel/CSV จะส่งออกเฉพาะรายการซื้อ เหมาะสำหรับนำไปจดรายรับรายจ่ายต่อ</p>
 
           <button onClick={() => importRef.current?.click()} className="w-full inline-flex items-center justify-center gap-2 border-2 border-gray-200 text-gray-700 text-base font-medium py-3 rounded-2xl min-h-[48px]">
             <Upload className="h-5 w-5" aria-hidden="true" />
-            นำข้อมูลกลับมา (Import)
+            นำเข้า JSON / Excel / CSV
           </button>
-          <input ref={importRef} type="file" accept=".json" onChange={handleImport} className="hidden" aria-label="นำเข้าไฟล์สำรองข้อมูล" />
+          <input ref={importRef} type="file" accept=".json,.xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={handleImport} className="hidden" aria-label="นำเข้าไฟล์ข้อมูล" />
 
           <button onClick={() => setShowClearConfirm(true)} className="w-full inline-flex items-center justify-center gap-2 border-2 border-red-200 text-red-600 text-base font-medium py-3 rounded-2xl min-h-[48px]">
             <Trash2 className="h-5 w-5" aria-hidden="true" />
