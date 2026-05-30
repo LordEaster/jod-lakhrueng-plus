@@ -38,7 +38,7 @@ function HomeHeader() {
           className="mx-auto h-auto w-full max-w-[240px]"
         />
       </picture>
-      <p className="text-sm text-gray-400 mt-2">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
+      <p className="text-sm text-gray-400 mt-2">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส <br/>(ไม่ใช่บริการอย่างเป็นทางการของหน่วยงานรัฐ และไม่ได้รับการรับรอง สนับสนุน หรือมอบหมายจากหน่วยงานใด)</p>
     </header>
   )
 }
