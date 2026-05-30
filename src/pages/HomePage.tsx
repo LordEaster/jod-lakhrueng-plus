@@ -1,3 +1,102 @@
+import { useNavigate } from 'react-router-dom'
+import { useSchemeSetting, useAppSetting } from '../hooks/useSettings'
+import { useCampaignStatus } from '../hooks/useCampaignStatus'
+import { useDailySummary } from '../hooks/useDailySummary'
+import { useMonthlySummary } from '../hooks/useMonthlySummary'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '../db/db'
+import { saveAppSetting } from '../db/settingRepository'
+import TodaySummaryCard from '../components/TodaySummaryCard'
+import MonthSummaryCard from '../components/MonthSummaryCard'
+import EmptyState from '../components/EmptyState'
+import CampaignLockScreen from '../components/CampaignLockScreen'
+import InstallHint from '../components/InstallHint'
+import { formatThaiDate, formatAmount } from '../logic/formatThai'
+
 export default function HomePage() {
-  return <div className="p-4">หน้าแรก</div>
+  const navigate = useNavigate()
+  const scheme = useSchemeSetting()
+  const appSetting = useAppSetting()
+  const { status, startDate, endDate } = useCampaignStatus()
+  const dailySummary = useDailySummary(scheme)
+  const monthlySummary = useMonthlySummary(scheme)
+  const recentEntries = useLiveQuery(() => db.purchases.orderBy('createdAt').reverse().limit(3).toArray(), [])
+
+  async function dismissInstallHint() {
+    await saveAppSetting({ ...appSetting, showInstallHint: false })
+  }
+
+  if (status === 'before' || status === 'after') {
+    return (
+      <div className="max-w-md mx-auto">
+        <header className="px-4 pt-6 pb-2">
+          <h1 className="text-2xl font-bold text-gray-800">จดละครึ่ง พลัส</h1>
+          <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
+        </header>
+        <CampaignLockScreen status={status} startDate={startDate} endDate={endDate} />
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-md mx-auto">
+      <header className="px-4 pt-6 pb-2">
+        <h1 className="text-2xl font-bold text-gray-800">จดละครึ่ง พลัส</h1>
+        <p className="text-sm text-gray-400 mt-1">เครื่องมือช่วยจดสิทธิโครงการไทยช่วยไทย พลัส (60/40)</p>
+      </header>
+
+      {appSetting.showInstallHint && <InstallHint onDismiss={dismissInstallHint} />}
+
+      <div className="px-4 space-y-4">
+        {dailySummary ? (
+          <TodaySummaryCard summary={dailySummary} dailyCap={scheme.dailyCap} />
+        ) : (
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 h-40 animate-pulse" />
+        )}
+
+        <button
+          onClick={() => navigate('/add')}
+          className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-2xl font-bold py-5 rounded-2xl min-h-[72px] shadow-lg transition-colors"
+          aria-label="จดรายการซื้อใหม่"
+        >
+          + จดรายการซื้อ
+        </button>
+
+        {monthlySummary ? (
+          <MonthSummaryCard summary={monthlySummary} monthlyCap={scheme.monthlyCap} />
+        ) : (
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 h-32 animate-pulse" />
+        )}
+
+        {/* Recent entries */}
+        <div>
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">รายการล่าสุด</h2>
+          {!recentEntries || recentEntries.length === 0 ? (
+            <EmptyState
+              message="วันนี้ยังไม่มีรายการซื้อ"
+              subMessage="กดปุ่มด้านบนเพื่อจดรายการแรกของวันนี้"
+            />
+          ) : (
+            <div className="space-y-2">
+              {recentEntries.map((entry) => (
+                <div key={entry.id} className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex justify-between items-center">
+                  <div>
+                    <p className="text-lg font-medium text-gray-800">{entry.title ?? 'ไม่ระบุชื่อ'}</p>
+                    <p className="text-sm text-gray-400">{formatThaiDate(entry.date)}</p>
+                  </div>
+                  <p className="text-xl font-bold text-gray-800">{formatAmount(entry.amount)} บาท</p>
+                </div>
+              ))}
+              <button
+                onClick={() => navigate('/history')}
+                className="w-full text-center text-blue-600 font-medium py-3 text-lg"
+              >
+                ดูประวัติทั้งหมด →
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
