@@ -69,9 +69,10 @@ export default function HistoryPage() {
   const prevTotal = priorMonthEntries ? getMonthlySummary(priorMonthEntries, scheme, 0).totalSubsidy : 0
   const enrichedEntries = monthEntries ? enrichEntries(monthEntries, prevTotal) : []
   const isHistoryLoading = !monthEntries || !priorMonthEntries
-  const monthOptions = availableMonths?.includes(selectedMonth)
+  const currentMonth = thisMonthKey()
+  const monthOptions = availableMonths?.includes(currentMonth)
     ? availableMonths
-    : [selectedMonth, ...(availableMonths ?? [])]
+    : [currentMonth, ...(availableMonths ?? [])]
 
   const byDate = new Map<string, EnrichedEntry[]>()
   for (const e of enrichedEntries) {
